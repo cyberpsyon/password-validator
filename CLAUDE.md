@@ -1,0 +1,38 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Running
+
+```bash
+python3 password_validator.py
+```
+
+Interactive CLI — prompts for a password, prints score/rating/recommendations, then asks to continue. Type `quit`, `exit`, or `q` to stop.
+
+### Dependency
+
+Requires the `zxcvbn` Python package (`pip install zxcvbn`).
+
+### Blacklist configuration
+
+The blacklist file defaults to `rockyou.txt` in the project directory. Override with `PV_BLACKLIST_FILE` env var:
+
+```bash
+PV_BLACKLIST_FILE=/path/to/wordlist.txt python3 password_validator.py
+```
+
+## Architecture
+
+Single-file application (`password_validator.py`) with four main functions:
+
+- **`validate_password(password, blacklist)`** — Core scoring engine. Checks 6 rules (length, uppercase, lowercase, numbers, special chars, blacklist) worth up to 70 points. Returns `(score, max_score, failed_rules, passed_rules)`.
+- **`analyze_crack_time(password)`** — Uses zxcvbn to estimate offline crack time and awards up to 30 additional points (Rule 7). Returns a `hard_fail` flag if crack time < 1 hour, which caps the rating at WEAK regardless of score.
+- **`get_rating(score)`** — Maps score to rating: WEAK (<40), FAIR (40-59), GOOD (60-79), STRONG (80-99), EXCELLENT (100).
+- **`load_blacklist()`** — Loads the wordlist into a set. Gracefully degrades (returns empty set) if the file is missing; `validate_password` flags this as a failed rule.
+
+The `main()` loop loads the blacklist once, then repeatedly collects input, combines rule-based scoring with zxcvbn crack-time scoring, and displays results.
+
+## Security audit
+
+`audits/password_validator_audit.md` contains a prior security audit. Several findings have already been remediated in the current code (log file permissions, max length guard, configurable blacklist path, explicit blacklist-missing handling).

@@ -1,0 +1,8 @@
+# Logs
+*.log
+
+# Large wordlists / datasets
+rockyou.txt
+
+# Local tool settings
+.claude/
