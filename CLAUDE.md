@@ -4,15 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running
 
+**CLI:**
 ```bash
 python3 password_validator.py
 ```
 
 Interactive CLI — prompts for a password, prints score/rating/recommendations, then asks to continue. Type `quit`, `exit`, or `q` to stop.
 
-### Dependency
+**Streamlit web UI:**
+```bash
+streamlit run app.py
+```
 
-Requires the `zxcvbn` Python package (`pip install zxcvbn`).
+Opens at `http://localhost:8501`. Includes password validation with visual scoring and a password generator.
+
+### Dependencies
+
+Requires `zxcvbn` and `streamlit` (`pip install zxcvbn streamlit`).
 
 ### Blacklist configuration
 
@@ -24,7 +32,9 @@ PV_BLACKLIST_FILE=/path/to/wordlist.txt python3 password_validator.py
 
 ## Architecture
 
-Single-file application (`password_validator.py`) with four main functions:
+Core validation logic lives in `password_validator.py`. The Streamlit frontend (`app.py`) imports and reuses these functions directly, adding a web UI with visual scoring, color-coded ratings, and a password generator.
+
+### Core functions (`password_validator.py`):
 
 - **`validate_password(password, blacklist)`** — Core scoring engine. Checks 6 rules (length, uppercase, lowercase, numbers, special chars, blacklist) worth up to 70 points. Returns `(score, max_score, failed_rules, passed_rules)`.
 - **`analyze_crack_time(password)`** — Uses zxcvbn to estimate offline crack time and awards up to 30 additional points (Rule 7). Returns a `hard_fail` flag if crack time < 1 hour, which caps the rating at WEAK regardless of score.

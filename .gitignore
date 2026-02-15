@@ -4,5 +4,8 @@
 # Large wordlists / datasets
 rockyou.txt
 
+# Python cache
+__pycache__/
+
 # Local tool settings
 .claude/
