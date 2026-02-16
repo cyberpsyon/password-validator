@@ -1,5 +1,3 @@
-# password-validator
-=======
 # Password Validator
 
 A password strength validator that scores passwords against security policies, a common password blacklist (rockyou.txt), and crack-time estimation via [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python).
