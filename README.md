@@ -73,4 +73,4 @@ Points are awarded based on how long it would take to crack the password assumin
 | FAIR | 40–59 |
 | WEAK | Below 40 |
 
-Any password that can be cracked in under 1 hour is automatically rated **WEAK** regardless of its total score.
+Any password that can be cracked in under 1 hour or is found in the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) breach database is automatically rated **WEAK** regardless of its total score.
