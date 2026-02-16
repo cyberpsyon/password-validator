@@ -1,5 +1,4 @@
 import html
-import math
 import time
 
 import streamlit as st
@@ -34,7 +33,7 @@ def get_blacklist():
 def inject_progress_color(rating):
     color = RATING_COLORS.get(rating)
     if color is None:
-        return  # Unknown rating; skip style injection
+        return
     st.markdown(
         f"""<style>
         .stProgress > div > div > div > div {{
@@ -44,6 +43,10 @@ def inject_progress_color(rating):
         unsafe_allow_html=True,
     )
 
+
+# ---------------------------------------------------------------------------
+# Threat gauge
+# ---------------------------------------------------------------------------
 
 _GAUGE_SEGMENTS = [
     (0,          "Instant",   "#ef4444"),
@@ -58,41 +61,33 @@ _GAUGE_SEGMENTS = [
 ]
 
 
-def _gauge_position(seconds):
-    """Map crack time in seconds to a 0.0-1.0 gauge position (log scale)."""
-    if seconds <= 0:
-        return 0.0
-    # Log scale: 0 = instant, 1 = centuries+ (10^10 seconds ~= 317 years)
-    log_val = math.log10(max(seconds, 1))
-    return min(log_val / 10.0, 1.0)
-
-
-def _gauge_label_and_color(seconds):
-    """Return the human-readable tier label and color for the given crack time."""
-    for threshold, label, color in _GAUGE_SEGMENTS:
-        if seconds < threshold:
-            return label, color
-    return _GAUGE_SEGMENTS[-1][1], _GAUGE_SEGMENTS[-1][2]
+def _gauge_segment_index(seconds):
+    """Return the index of the segment this crack time falls into."""
+    for i, (threshold, _, _) in enumerate(_GAUGE_SEGMENTS):
+        if i + 1 < len(_GAUGE_SEGMENTS) and seconds < _GAUGE_SEGMENTS[i + 1][0]:
+            return i
+    return len(_GAUGE_SEGMENTS) - 1
 
 
 def render_threat_gauge(crack_time_display, crack_seconds):
     """Render a segmented threat gauge for crack time."""
-    position = _gauge_position(crack_seconds)
-    tier_label, tier_color = _gauge_label_and_color(crack_seconds)
+    seg_idx = _gauge_segment_index(crack_seconds)
+    tier_label = _GAUGE_SEGMENTS[seg_idx][1]
+    tier_color = _GAUGE_SEGMENTS[seg_idx][2]
+    total = len(_GAUGE_SEGMENTS)
 
     # Build segmented gauge bar
     segments_html = ""
-    total = len(_GAUGE_SEGMENTS)
     for i, (_, label, color) in enumerate(_GAUGE_SEGMENTS):
         width_pct = 100 / total
-        opacity = "1.0" if (i / total) <= position else "0.25"
+        opacity = "1.0" if i <= seg_idx else "0.25"
         segments_html += (
             f'<div style="width:{width_pct:.1f}%; height:100%; '
             f'background:{color}; opacity:{opacity}; display:inline-block;"></div>'
         )
 
-    # Indicator position
-    indicator_pct = min(position * 100, 99)
+    # Place indicator at the center of the active segment
+    indicator_pct = (seg_idx + 0.5) / total * 100
 
     gauge_html = f"""
     <div style="margin:1rem 0;">
@@ -121,6 +116,10 @@ def render_threat_gauge(crack_time_display, crack_seconds):
     """
     st.markdown(gauge_html, unsafe_allow_html=True)
 
+
+# ---------------------------------------------------------------------------
+# Password / passphrase generators
+# ---------------------------------------------------------------------------
 
 def render_generator_panel():
     """Password generator UI inside an expander."""
@@ -201,6 +200,100 @@ def render_passphrase_panel():
                 st.rerun()
 
 
+# ---------------------------------------------------------------------------
+# Info dialogs
+# ---------------------------------------------------------------------------
+
+_SAFETY_TIPS = """\
+**Use a unique password for every account.** If one site is breached, \
+attackers will try that password on every other service you use.
+
+**Use a password manager.** No one can remember dozens of strong, unique \
+passwords. Let a password manager generate and store them for you.
+
+**Enable two-factor authentication (2FA).** Even a strong password can be \
+phished. A second factor (authenticator app or hardware key) stops most \
+account takeovers.
+
+**Longer beats more complex.** A 20-character passphrase made of random \
+words is both stronger and easier to type than an 8-character mess of symbols.
+
+**Never share passwords over email or chat.** Legitimate services will never \
+ask for your password. If someone does, it's a scam.
+
+**Watch for breaches.** Services like Have I Been Pwned will notify you \
+if your email appears in a data breach so you can change your passwords \
+before attackers use them.
+
+**Change passwords that have been exposed.** If a password shows up in a \
+breach database, stop using it everywhere — immediately.\
+"""
+
+def render_safety_tips_panel():
+    """Render password safety tips inside an expander."""
+    with st.expander("Safety Tips"):
+        st.markdown(_SAFETY_TIPS)
+
+
+def render_scoring_panel():
+    """Render a generic scoring explanation inside an expander."""
+    with st.expander("How Scoring Works"):
+        st.markdown(
+            "Your password is scored out of **100 points** across 7 categories. "
+            "Each category checks a different aspect of password strength."
+        )
+
+        st.markdown("#### Point Breakdown")
+        st.markdown(
+            "| Category | Points |\n"
+            "|----------|--------|\n"
+            "| Length (12+ characters) | 15 |\n"
+            "| Contains uppercase letters | 10 |\n"
+            "| Contains lowercase letters | 10 |\n"
+            "| Contains numbers | 10 |\n"
+            "| Contains special characters | 10 |\n"
+            "| Not in breach databases | 15 |\n"
+            "| Crack-time resistance | 0\u201330 |"
+        )
+
+        st.markdown("#### Crack-Time Resistance")
+        st.markdown(
+            "This category uses [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python) "
+            "pattern analysis to estimate how long a real-world attacker would need to "
+            "crack your password assuming bcrypt hashing at 10,000 guesses per second."
+        )
+        st.markdown(
+            "| Estimated Crack Time | Points |\n"
+            "|----------------------|--------|\n"
+            "| Less than 1 second | 0 |\n"
+            "| Less than 1 minute | 5 |\n"
+            "| Less than 1 hour | 10 |\n"
+            "| Less than 1 day | 15 |\n"
+            "| Less than 1 year | 20 |\n"
+            "| Less than 100 years | 25 |\n"
+            "| 100+ years | 30 |"
+        )
+
+        st.markdown("#### Final Rating")
+        st.markdown(
+            "| Rating | Score Range |\n"
+            "|--------|-------------|\n"
+            "| EXCELLENT | 100 |\n"
+            "| STRONG | 80\u201399 |\n"
+            "| GOOD | 60\u201379 |\n"
+            "| FAIR | 40\u201359 |\n"
+            "| WEAK | Below 40 |"
+        )
+        st.markdown(
+            "Any password that can be cracked in **under 1 hour** is automatically "
+            "rated **WEAK** regardless of its total score."
+        )
+
+
+# ---------------------------------------------------------------------------
+# Validation results
+# ---------------------------------------------------------------------------
+
 def render_validation_results(password, blacklist):
     """Run validation and display results."""
     if not password:
@@ -215,7 +308,6 @@ def render_validation_results(password, blacklist):
             st.stop()
     st.session_state["last_validate_time"] = time.time()
 
-    # Run validation
     result = full_validate(password, blacklist)
 
     st.divider()
@@ -238,9 +330,6 @@ def render_validation_results(password, blacklist):
             f"{rating_safe}</span></div>",
             unsafe_allow_html=True,
         )
-
-    if result["hard_fail"]:
-        st.error("Rating capped at WEAK \u2014 this password can be cracked in under 1 hour.")
 
     # HIBP failure warning
     if any("HIBP API unavailable" in r for r in result["failed"]):
@@ -296,17 +385,18 @@ def render_validation_results(password, blacklist):
             st.markdown(f"- {rec}")
 
 
-# -- Main page --
+# ---------------------------------------------------------------------------
+# Main page
+# ---------------------------------------------------------------------------
+
 with st.spinner("Loading password database..."):
     blacklist = get_blacklist()
 
 st.title("Password Strength Validator")
-st.caption(f"Max {MAX_LENGTH} characters")
 
-show = st.checkbox("Show password", value=False)
 password = st.text_input(
-    "Enter a password",
-    type="default" if show else "password",
+    f"Enter a password (max {MAX_LENGTH} characters)",
+    type="password",
     max_chars=MAX_LENGTH,
     key="password_input",
 )
@@ -315,6 +405,8 @@ validate_clicked = st.button("Validate", type="primary", use_container_width=Tru
 
 render_generator_panel()
 render_passphrase_panel()
+render_safety_tips_panel()
+render_scoring_panel()
 
 if validate_clicked:
     render_validation_results(password, blacklist)
