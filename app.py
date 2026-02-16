@@ -50,14 +50,13 @@ def inject_progress_color(rating):
 
 _GAUGE_SEGMENTS = [
     (0,          "Instant",   "#ef4444"),
-    (60,         "Seconds",   "#ef4444"),
-    (3600,       "Minutes",   "#f97316"),
-    (86400,      "Hours",     "#f97316"),
-    (2592000,    "Days",      "#eab308"),
-    (31536000,   "Months",    "#eab308"),
-    (315360000,  "Years",     "#22c55e"),
-    (3153600000, "Decades",   "#22c55e"),
-    (float("inf"), "Centuries", "#15803d"),
+    (60,         "Minutes",   "#ef4444"),
+    (3600,       "Hours",     "#f97316"),
+    (86400,      "Days",      "#f97316"),
+    (2592000,    "Months",    "#eab308"),
+    (31536000,   "Years",     "#eab308"),
+    (315360000,  "Decades",   "#22c55e"),
+    (3153600000, "Centuries", "#15803d"),
 ]
 
 
