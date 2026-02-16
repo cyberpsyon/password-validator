@@ -72,7 +72,6 @@ def _gauge_segment_index(seconds):
 def render_threat_gauge(crack_time_display, crack_seconds):
     """Render a segmented threat gauge for crack time."""
     seg_idx = _gauge_segment_index(crack_seconds)
-    tier_label = _GAUGE_SEGMENTS[seg_idx][1]
     tier_color = _GAUGE_SEGMENTS[seg_idx][2]
     total = len(_GAUGE_SEGMENTS)
 
@@ -86,9 +85,6 @@ def render_threat_gauge(crack_time_display, crack_seconds):
             f'background:{color}; opacity:{opacity}; display:inline-block;"></div>'
         )
 
-    # Place indicator at the center of the active segment
-    indicator_pct = (seg_idx + 0.5) / total * 100
-
     gauge_html = f"""
     <div style="margin:1rem 0;">
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.25rem;">
@@ -101,16 +97,9 @@ def render_threat_gauge(crack_time_display, crack_seconds):
                   overflow:hidden; background:#1a1a2e; display:flex;">
         {segments_html}
       </div>
-      <div style="position:relative; width:100%; height:0;">
-        <div style="position:absolute; left:{indicator_pct:.1f}%; top:2px;
-                    transform:translateX(-50%); font-size:0.7rem; color:{tier_color};
-                    font-weight:bold;">
-          &#9650; {html.escape(tier_label)}
-        </div>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-top:1.2rem;">
-        <span style="font-size:0.7rem; color:#ef4444;">{"" if tier_label == "Instant" else "Instant"}</span>
-        <span style="font-size:0.7rem; color:#15803d;">{"" if tier_label == "Centuries" else "Centuries"}</span>
+      <div style="display:flex; justify-content:space-between; margin-top:0.25rem;">
+        <span style="font-size:0.7rem; color:#ef4444;">Instant</span>
+        <span style="font-size:0.7rem; color:#15803d;">Centuries</span>
       </div>
     </div>
     """
@@ -285,8 +274,9 @@ def render_scoring_panel():
             "| WEAK | Below 40 |"
         )
         st.markdown(
-            "Any password that can be cracked in **under 1 hour** is automatically "
-            "rated **WEAK** regardless of its total score."
+            "Any password that can be cracked in **under 1 hour** or is found in the "
+            "**Have I Been Pwned** breach database is automatically rated **WEAK** "
+            "regardless of its total score."
         )
 
 

@@ -310,6 +310,10 @@ def full_validate(password, blacklist):
     else:
         failed.append("\u2717 Crack time resistance \u2014 cracks in under 1 second (0/30 points)")
 
+    # Auto-WEAK: crackable in under 1 hour OR found in HIBP breach database
+    hibp_breach = any("have i been pwned" in r.lower() for r in failed)
+    if hibp_breach:
+        hard_fail = True
     rating = "WEAK" if hard_fail else get_rating(score)
 
     return {
