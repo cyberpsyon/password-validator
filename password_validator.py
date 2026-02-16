@@ -2,8 +2,11 @@
 # Date: 12-07-2024
 # Purpose: Validates password strength against security policies and common password blacklist
 
+import hashlib
 import logging
 import os
+
+import requests
 import zxcvbn
 
 # Configuration
@@ -43,6 +46,39 @@ def load_blacklist():
     except Exception as e:
         logging.error(f"Unexpected error loading blacklist: {e}")
         return set()
+
+def check_hibp(password):
+    """Check if a password appears in the Have I Been Pwned database.
+
+    Uses the k-anonymity range API — only the first 5 characters of the
+    SHA-1 hash are sent to the server; the full password never leaves
+    the machine.
+
+    Returns (found: bool, count: int | None, error: str | None).
+    - found=True, count=N means the password appeared in N breaches.
+    - found=False, count=0 means it was not found.
+    - error is set (and found=False) if the API call failed.
+    """
+    sha1 = hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
+    prefix, suffix = sha1[:5], sha1[5:]
+
+    try:
+        resp = requests.get(
+            f"https://api.pwnedpasswords.com/range/{prefix}",
+            timeout=5,
+        )
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        logging.warning(f"HIBP API request failed: {e}")
+        return False, None, str(e)
+
+    for line in resp.text.splitlines():
+        hash_suffix, _, count = line.partition(":")
+        if hash_suffix.strip() == suffix:
+            return True, int(count.strip()), None
+
+    return False, 0, None
+
 
 def validate_password(password, blacklist):
     # Guard clause: password cannot be empty or None
@@ -110,17 +146,41 @@ def validate_password(password, blacklist):
         failed_rules.append(f"✗ No special characters ({SPECIAL_CHARS})")
         logging.info("Special character check FAILED")
 
-    # Rule 6: Not in common password blacklist (15 points)
+    # Rule 6: Not in common password databases (15 points)
+    # Must pass both the local blacklist AND the HIBP Pwned Passwords check.
+    blacklist_clean = True
+    hibp_clean = True
+
+    # 6a: Local blacklist
     if blacklist is None or len(blacklist) == 0:
-        failed_rules.append("⚠ Blacklist unavailable — cannot verify against common passwords")
+        failed_rules.append("⚠ Local blacklist unavailable — cannot verify against local password list")
         logging.warning("Blacklist check SKIPPED: no blacklist loaded")
+        blacklist_clean = False
     elif password.lower() in blacklist:
-        failed_rules.append("✗ Found in common password database (CRITICAL)")
+        failed_rules.append("✗ Found in local password database (CRITICAL)")
         logging.warning("Password found in blacklist (rejected)")
+        blacklist_clean = False
     else:
+        logging.info("Local blacklist check PASSED")
+
+    # 6b: Have I Been Pwned
+    hibp_found, hibp_count, hibp_error = check_hibp(password)
+    if hibp_error:
+        failed_rules.append("⚠ HIBP API unavailable — cannot verify against breach database")
+        logging.warning(f"HIBP check SKIPPED: {hibp_error}")
+        hibp_clean = False
+    elif hibp_found:
+        failed_rules.append(f"✗ Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)")
+        logging.warning(f"Password found in HIBP ({hibp_count} breaches)")
+        hibp_clean = False
+    else:
+        logging.info("HIBP check PASSED")
+
+    # Award points only if both checks pass (or at least one passed with the other skipped)
+    if blacklist_clean and hibp_clean:
         score += 15
-        passed_rules.append("✓ Not in common password database")
-        logging.info("Blacklist check PASSED")
+        passed_rules.append("✓ Not in common password databases")
+        logging.info("Combined breach check PASSED")
 
     return score, max_score, failed_rules, passed_rules
 
@@ -244,7 +304,7 @@ def main():
                 print("  • This password is too weak for secure systems")
             if len(failed_rules) > 0:
                 print("  • Address all failed rules above")
-            if any("common password" in rule for rule in failed_rules):
+            if any("common password" in rule or "Have I Been Pwned" in rule for rule in failed_rules):
                 print("  • CRITICAL: Use a unique password not found in breach databases")
             if warning:
                 print(f"  • {warning}")
