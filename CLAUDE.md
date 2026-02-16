@@ -20,7 +20,7 @@ Opens at `http://localhost:8501`. Includes password validation with visual scori
 
 ### Dependencies
 
-Requires `zxcvbn` and `streamlit` (`pip install zxcvbn streamlit`).
+Requires `zxcvbn`, `requests`, and `streamlit` (`pip install zxcvbn requests streamlit`).
 
 ### Blacklist configuration
 
@@ -36,7 +36,8 @@ Core validation logic lives in `password_validator.py`. The Streamlit frontend (
 
 ### Core functions (`password_validator.py`):
 
-- **`validate_password(password, blacklist)`** — Core scoring engine. Checks 6 rules (length, uppercase, lowercase, numbers, special chars, blacklist) worth up to 70 points. Returns `(score, max_score, failed_rules, passed_rules)`.
+- **`validate_password(password, blacklist)`** — Core scoring engine. Checks 6 rules (length, uppercase, lowercase, numbers, special chars, breach databases) worth up to 70 points. Rule 6 combines a local blacklist check with an HIBP Pwned Passwords API check — both must pass to earn the 15 points. Returns `(score, max_score, failed_rules, passed_rules)`.
+- **`check_hibp(password)`** — Queries the Have I Been Pwned Pwned Passwords API using k-anonymity (only the first 5 chars of the SHA-1 hash are sent). Returns `(found, count, error)`. Fails open on network errors.
 - **`analyze_crack_time(password)`** — Uses zxcvbn to estimate offline crack time and awards up to 30 additional points (Rule 7). Returns a `hard_fail` flag if crack time < 1 hour, which caps the rating at WEAK regardless of score.
 - **`get_rating(score)`** — Maps score to rating: WEAK (<40), FAIR (40-59), GOOD (60-79), STRONG (80-99), EXCELLENT (100).
 - **`load_blacklist()`** — Loads the wordlist into a set. Gracefully degrades (returns empty set) if the file is missing; `validate_password` flags this as a failed rule.

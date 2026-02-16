@@ -184,7 +184,7 @@ if validate_clicked:
         recs.append("This password is too weak for secure systems.")
     if failed_rules:
         recs.append("Address all failed rules listed above.")
-    if any("common password" in r.lower() for r in failed_rules):
+    if any("common password" in r.lower() or "have i been pwned" in r.lower() for r in failed_rules):
         recs.append("**CRITICAL:** Use a unique password not found in breach databases.")
     if warning:
         recs.append(warning)
