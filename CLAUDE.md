@@ -32,18 +32,38 @@ PV_BLACKLIST_FILE=/path/to/wordlist.txt python3 password_validator.py
 
 ## Architecture
 
-Core validation logic lives in `password_validator.py`. The Streamlit frontend (`app.py`) imports and reuses these functions directly, adding a web UI with visual scoring, color-coded ratings, and a password generator.
+Core validation logic lives in `password_validator.py`. The Streamlit frontend (`app.py`) imports and reuses shared functions, adding a web UI with visual scoring, color-coded ratings, and a password generator.
 
-### Core functions (`password_validator.py`):
+### `password_validator.py` structure
 
-- **`validate_password(password, blacklist)`** — Core scoring engine. Checks 6 rules (length, uppercase, lowercase, numbers, special chars, breach databases) worth up to 70 points. Rule 6 combines a local blacklist check with an HIBP Pwned Passwords API check — both must pass to earn the 15 points. Returns `(score, max_score, failed_rules, passed_rules)`.
-- **`check_hibp(password)`** — Queries the Have I Been Pwned Pwned Passwords API using k-anonymity (only the first 5 chars of the SHA-1 hash are sent). Returns `(found, count, error)`. Fails open on network errors.
-- **`analyze_crack_time(password)`** — Uses zxcvbn to estimate offline crack time and awards up to 30 additional points (Rule 7). Returns a `hard_fail` flag if crack time < 1 hour, which caps the rating at WEAK regardless of score.
+- **Rule checkers** (`_check_length`, `_check_uppercase`, `_check_lowercase`, `_check_digits`, `_check_special`, `_check_breach_databases`) — Each returns `(points, pass_msg, fail_msg)`. Registered in the `_RULES` list and iterated by `validate_password()`.
+- **`validate_password(password, blacklist)`** — Runs all rule checkers via loop. Returns `(score, max_score, failed_rules, passed_rules)`.
+- **`check_hibp(password)`** — Queries HIBP Pwned Passwords API using k-anonymity. Returns `(found, count, error)`. Fails open on network errors.
+- **`analyze_crack_time(password)`** — Uses zxcvbn for crack-time estimation (up to 30 points). Hard-fail flag if crack time < 1 hour.
+- **`full_validate(password, blacklist)`** — Single orchestrator combining `validate_password` + `analyze_crack_time` + `get_rating`. Returns a results dict. Used by both CLI and Streamlit to avoid duplicated logic.
+- **`generate_password(length, ...)`** — Cryptographically secure password generator using `secrets.SystemRandom`.
 - **`get_rating(score)`** — Maps score to rating: WEAK (<40), FAIR (40-59), GOOD (60-79), STRONG (80-99), EXCELLENT (100).
-- **`load_blacklist()`** — Loads the wordlist into a set. Gracefully degrades (returns empty set) if the file is missing; `validate_password` flags this as a failed rule.
+- **`load_blacklist()`** — Loads the wordlist into a set. Gracefully degrades if file is missing.
+- **`_configure_logging()`** — Sets up file + console logging. Called only from `main()` to avoid import side effects.
+- **`main()`** — CLI entry point. Uses `full_validate()`, `_print_results()`, `_print_recommendations()`.
 
-The `main()` loop loads the blacklist once, then repeatedly collects input, combines rule-based scoring with zxcvbn crack-time scoring, and displays results.
+### `app.py` structure
 
-## Security audit
+- **`render_generator_panel()`** — Password generator UI (expander with length slider, character set checkboxes).
+- **`render_validation_results(password, blacklist)`** — Runs `full_validate()` and renders score, rating badge, rules, and recommendations. Includes rate limiting and HIBP failure warnings.
+- **`inject_progress_color(rating)`** — Injects CSS to color the progress bar by rating.
+- Top-level code is minimal: loads blacklist, renders input, dispatches to render functions.
 
-`audits/password_validator_audit.md` contains a prior security audit. Several findings have already been remediated in the current code (log file permissions, max length guard, configurable blacklist path, explicit blacklist-missing handling).
+## Security audits
+
+- `audits/password_validator_audit.md` — Original security audit (prior findings all remediated)
+- `audits/security_input_validation_audit.md` — Current security & input validation audit
+- `audits/code_complexity_audit.md` — Code complexity analysis
+
+### Key security patterns
+
+- All `unsafe_allow_html=True` content is escaped via `html.escape()`
+- HIBP requests include `User-Agent` and `Add-Padding` headers
+- Logging uses module-level `_logger` (no root-logger side effects on import)
+- Exception messages use `!r` formatting to prevent log injection
+- `.streamlit/config.toml` disables CORS and usage stats

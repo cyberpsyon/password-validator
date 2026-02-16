@@ -6,11 +6,13 @@ Available as both a CLI tool and a Streamlit web UI.
 
 ## Features
 
-- **7-rule scoring system** (100 points max): length, uppercase, lowercase, numbers, special characters, blacklist check, and crack-time resistance
-- **Crack-time estimation** using zxcvbn's offline fast-hashing model
+- **7-rule scoring system** (100 points max): length, uppercase, lowercase, numbers, special characters, breach database check, and crack-time resistance
+- **Crack-time estimation** using zxcvbn's offline slow-hashing model (bcrypt at 10K guesses/sec), aligned with the [Hive Systems 2025 methodology](https://www.hivesystems.com/blog/are-your-passwords-in-the-green)
 - **Hard fail override** — passwords crackable in under 1 hour are rated WEAK regardless of score
 - **Breach database checking** against 14M+ passwords from rockyou.txt and the HIBP Pwned Passwords API (uses k-anonymity — your password never leaves the machine)
-- **Streamlit web UI** with color-coded score, rating badges, and a built-in password generator
+- **Streamlit web UI** with color-coded score, rating badges, threat gauge, and built-in generators
+- **Password generator** — cryptographically secure random passwords with configurable length and character sets
+- **Passphrase generator** — random passphrases from the [EFF diceware wordlist](https://www.eff.org/dice) (7,776 words) with options for uppercase, leetspeak, digits, special characters, and configurable word count/separator
 
 ## Setup
 
@@ -42,12 +44,12 @@ streamlit run app.py
 | Contains numbers | 10 |
 | Contains special characters | 10 |
 | Not in breach databases (rockyou.txt + HIBP) | 15 |
-| Crack-time resistance | 0–30 |
+| Crack-time resistance | 0-30 |
 
 | Rating | Score |
 |--------|-------|
 | EXCELLENT | 100 |
-| STRONG | 80–99 |
-| GOOD | 60–79 |
-| FAIR | 40–59 |
+| STRONG | 80-99 |
+| GOOD | 60-79 |
+| FAIR | 40-59 |
 | WEAK | <40 |
