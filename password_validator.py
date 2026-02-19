@@ -265,7 +265,8 @@ def analyze_crack_time(password):
 
     Returns (crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning).
     """
-    result = zxcvbn.zxcvbn(password)
+    # bcrypt truncates at 72 bytes; zxcvbn enforces the same limit
+    result = zxcvbn.zxcvbn(password[:72])
     crack_time_display = result["crack_times_display"]["offline_slow_hashing_1e4_per_second"]
     crack_time_seconds = result["crack_times_seconds"]["offline_slow_hashing_1e4_per_second"]
 
