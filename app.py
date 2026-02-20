@@ -423,6 +423,12 @@ password = st.text_input(
     key="password_input",
 )
 
+st.markdown(
+    '<p style="text-align:right; font-size:0.75rem; color:#888; margin:-0.5rem 0 0.5rem 0;">'
+    'Check your surroundings before revealing your password.</p>',
+    unsafe_allow_html=True,
+)
+
 validate_clicked = st.button("Validate", type="primary", use_container_width=True)
 
 render_generator_panel()
