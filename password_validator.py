@@ -38,7 +38,7 @@ RATING_THRESHOLDS = [
     (80,  "STRONG"),
     (60,  "GOOD"),
     (40,  "FAIR"),
-]
+]  # All scores are multiples of 5, so gaps between tiers (e.g. 96-99) are unreachable
 
 
 def _configure_logging():
@@ -59,7 +59,7 @@ def _validated_blacklist_path(path):
     resolved = os.path.realpath(path)
     if not os.path.isfile(resolved):
         _logger.warning(f"Blacklist file not found: {resolved}")
-        return resolved  # Still return — load_blacklist handles missing gracefully
+        return resolved  # Still return; load_blacklist handles missing gracefully
     return resolved
 
 
@@ -99,7 +99,7 @@ def load_blacklist():
 def check_hibp(password):
     """Check if a password appears in the Have I Been Pwned database.
 
-    Uses the k-anonymity range API — only the first 5 characters of the
+    Uses the k-anonymity range API: only the first 5 characters of the
     SHA-1 hash are sent to the server; the full password never leaves
     the machine.
 
@@ -180,7 +180,7 @@ def _check_breach_databases(password, blacklist=None, **_kwargs):
 
     # 6a: Local blacklist
     if not blacklist:
-        fail_msgs.append("\u26a0 Local blacklist unavailable \u2014 cannot verify against local password list")
+        fail_msgs.append("\u26a0 Local blacklist unavailable: cannot verify against local password list")
         _logger.warning("Blacklist check SKIPPED: no blacklist loaded")
         blacklist_clean = False
     elif password.lower() in blacklist:
@@ -193,7 +193,7 @@ def _check_breach_databases(password, blacklist=None, **_kwargs):
     # 6b: Have I Been Pwned
     hibp_found, hibp_count, hibp_error = check_hibp(password)
     if hibp_error:
-        fail_msgs.append("\u26a0 HIBP API unavailable \u2014 cannot verify against breach database")
+        fail_msgs.append("\u26a0 HIBP API unavailable: cannot verify against breach database")
         _logger.warning(f"HIBP check SKIPPED: {hibp_error!r}")
         hibp_clean = False
     elif hibp_found:
@@ -309,7 +309,7 @@ def full_validate(password, blacklist):
     if crack_pts > 0:
         passed.append(f"\u2713 Crack time resistance ({crack_pts}/30 points)")
     else:
-        failed.append("\u2717 Crack time resistance \u2014 cracks in under 1 second (0/30 points)")
+        failed.append("\u2717 Crack time resistance: cracks in under 1 second (0/30 points)")
 
     # Auto-WEAK: crackable in under 1 hour OR found in HIBP breach database
     hibp_breach = any("have i been pwned" in r.lower() for r in failed)
@@ -432,7 +432,7 @@ def _print_results(result):
     print("-" * 60)
     print(f"Score: {result['score']}/{result['max_score']} ({result['rating']})")
     if result["hard_fail"]:
-        print("  *** Rating capped at WEAK \u2014 password cracks in under 1 hour ***")
+        print("  *** Rating capped at WEAK: password cracks in under 1 hour ***")
     print(f"Estimated crack time (worst case): {result['crack_time']}")
     print()
 
