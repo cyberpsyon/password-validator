@@ -192,35 +192,68 @@ def render_passphrase_panel():
 # Info dialogs
 # ---------------------------------------------------------------------------
 
-_SAFETY_TIPS = """\
-**Use a unique password for every account.** If one site is breached, \
-attackers will try that password on every other service you use.
+_SAFETY_TIPS = [
+    ("Use a unique password for every account",
+     "When a company gets hacked, attackers take the stolen passwords and try "
+     "them on other websites like your email, bank, and social media. If you "
+     "use the same password everywhere, one breach can compromise all of your "
+     "accounts. Always use a different password for each account."),
 
-**Use a password manager.** No one can remember dozens of strong, unique \
-passwords. Let a password manager generate and store them for you.
+    ("Use a password manager",
+     "Nobody can remember dozens of strong, unique passwords. A password "
+     "manager is an app that securely stores all of your passwords for you. "
+     "You only need to remember one master password, and the manager fills in "
+     "the rest. Popular options include Bitwarden, 1Password, and KeePass."),
 
-**Enable two-factor authentication (2FA).** Even a strong password can be \
-phished. A second factor (authenticator app or hardware key) stops most \
-account takeovers.
+    ("Enable two-factor authentication (2FA)",
+     "Two-factor authentication adds a second step when you log in, like a "
+     "code from an app on your phone or a physical security key. Even if "
+     "someone steals your password, they still cannot get into your account "
+     "without that second step. Turn on 2FA everywhere it is available, "
+     "especially for email, banking, and work accounts."),
 
-**Longer beats more complex.** A 20-character passphrase made of random \
-words is both stronger and easier to type than an 8-character mess of symbols.
+    ("Longer passwords are stronger passwords",
+     "A 20-character passphrase made of random words (like \"correct-horse-battery-staple\") "
+     "is both stronger and easier to type than a short, complicated password "
+     "like \"P@s5w0rd!\". Aim for at least 12 characters, but longer is always better."),
 
-**Never share passwords over email or chat.** Legitimate services will never \
-ask for your password. If someone does, it's a scam.
+    ("Never share passwords over email or chat",
+     "No legitimate company, IT department, or government agency will ever ask "
+     "you for your password. If someone contacts you asking for your password, "
+     "it is a scam. Always type your password directly into the official "
+     "website or app, never into an email, text message, or phone call."),
 
-**Watch for breaches.** Services like Have I Been Pwned will notify you \
-if your email appears in a data breach so you can change your passwords \
-before attackers use them.
+    ("Watch for data breaches",
+     "Data breaches happen regularly, and your information may be exposed "
+     "without you knowing. Sign up for free alerts at haveibeenpwned.com to "
+     "get notified if your email appears in a breach. When you get an alert, "
+     "change the password for that account immediately."),
 
-**Change passwords that have been exposed.** If a password shows up in a \
-breach database, stop using it everywhere — immediately.\
-"""
+    ("Change passwords that have been exposed",
+     "If you find out that one of your passwords was part of a data breach, "
+     "stop using it right away on every account where you used it. Attackers "
+     "share stolen passwords widely, so a breached password is never safe "
+     "to use again, even if you change it slightly."),
+
+    ("A high score does not mean your password is unbreakable",
+     "Even if this tool rates your password as \"Excellent\" with a crack time "
+     "of centuries, no password is truly permanent. Advances in technology, "
+     "including quantum computing, will make password cracking significantly "
+     "faster in the future. Always combine strong passwords with 2FA and "
+     "regular password rotation to stay protected."),
+]
+
 
 def render_safety_tips_panel():
-    """Render password safety tips inside an expander."""
+    """Render password safety tips as collapsible sub-expanders."""
     with st.expander("Safety Tips"):
-        st.markdown(_SAFETY_TIPS)
+        st.markdown(
+            "Follow these tips to keep your accounts safe. "
+            "Click on any tip to learn more."
+        )
+        for title, body in _SAFETY_TIPS:
+            with st.expander(title):
+                st.markdown(body)
 
 
 def render_scoring_panel():
@@ -267,9 +300,9 @@ def render_scoring_panel():
             "| Rating | Score Range |\n"
             "|--------|-------------|\n"
             "| EXCELLENT | 100 |\n"
-            "| STRONG | 80\u201399 |\n"
-            "| GOOD | 60\u201379 |\n"
-            "| FAIR | 40\u201359 |\n"
+            "| STRONG | 80-95 |\n"
+            "| GOOD | 60-75 |\n"
+            "| FAIR | 40-55 |\n"
             "| WEAK | Below 40 |"
         )
         st.markdown(
