@@ -134,10 +134,6 @@ def render_generator_panel():
 
         if "generated_password" in st.session_state:
             st.code(st.session_state["generated_password"], language=None)
-            if st.button("Use this password"):
-                st.session_state["password_input"] = st.session_state["generated_password"]
-                del st.session_state["generated_password"]
-                st.rerun()
 
 
 _SEPARATORS = {
@@ -182,10 +178,6 @@ def render_passphrase_panel():
 
         if "generated_passphrase" in st.session_state:
             st.code(st.session_state["generated_passphrase"], language=None)
-            if st.button("Use this passphrase"):
-                st.session_state["password_input"] = st.session_state["generated_passphrase"]
-                del st.session_state["generated_passphrase"]
-                st.rerun()
 
 
 # ---------------------------------------------------------------------------
