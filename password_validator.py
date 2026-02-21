@@ -134,41 +134,31 @@ def check_hibp(password):
 
 def _check_length(password, **_kwargs):
     if len(password) >= MIN_LENGTH:
-        _logger.info(f"Length check PASSED: {len(password)} chars")
         return 15, f"\u2713 Length requirement met ({len(password)} characters)", None
-    _logger.info(f"Length check FAILED: {len(password)} chars (needs {MIN_LENGTH}+)")
     return 0, None, f"\u2717 Too short (needs {MIN_LENGTH}+ characters, has {len(password)})"
 
 
 def _check_uppercase(password, **_kwargs):
     if any(c.isupper() for c in password):
-        _logger.info("Uppercase check PASSED")
         return 10, "\u2713 Contains uppercase letters", None
-    _logger.info("Uppercase check FAILED")
     return 0, None, "\u2717 No uppercase letters"
 
 
 def _check_lowercase(password, **_kwargs):
     if any(c.islower() for c in password):
-        _logger.info("Lowercase check PASSED")
         return 10, "\u2713 Contains lowercase letters", None
-    _logger.info("Lowercase check FAILED")
     return 0, None, "\u2717 No lowercase letters"
 
 
 def _check_digits(password, **_kwargs):
     if any(c.isdigit() for c in password):
-        _logger.info("Number check PASSED")
         return 10, "\u2713 Contains numbers", None
-    _logger.info("Number check FAILED")
     return 0, None, "\u2717 No numbers"
 
 
 def _check_special(password, **_kwargs):
     if any(c in SPECIAL_CHARS for c in password):
-        _logger.info("Special character check PASSED")
         return 10, "\u2713 Contains special characters", None
-    _logger.info("Special character check FAILED")
     return 0, None, f"\u2717 No special characters ({SPECIAL_CHARS})"
 
 
@@ -181,30 +171,21 @@ def _check_breach_databases(password, blacklist=None, **_kwargs):
     # 6a: Local blacklist
     if not blacklist:
         fail_msgs.append("\u26a0 Local blacklist unavailable: cannot verify against local password list")
-        _logger.warning("Blacklist check SKIPPED: no blacklist loaded")
         blacklist_clean = False
     elif password.lower() in blacklist:
         fail_msgs.append("\u2717 Found in local password database (CRITICAL)")
-        _logger.warning("Password found in blacklist (rejected)")
         blacklist_clean = False
-    else:
-        _logger.info("Local blacklist check PASSED")
 
     # 6b: Have I Been Pwned
     hibp_found, hibp_count, hibp_error = check_hibp(password)
     if hibp_error:
         fail_msgs.append("\u26a0 HIBP API unavailable: cannot verify against breach database")
-        _logger.warning(f"HIBP check SKIPPED: {hibp_error!r}")
         hibp_clean = False
     elif hibp_found:
         fail_msgs.append(f"\u2717 Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)")
-        _logger.warning(f"Password found in HIBP ({hibp_count} breaches)")
         hibp_clean = False
-    else:
-        _logger.info("HIBP check PASSED")
 
     if blacklist_clean and hibp_clean:
-        _logger.info("Combined breach check PASSED")
         return 15, "\u2713 Not in common password databases", None
 
     # Return all failure messages joined; caller will split if needed
@@ -501,11 +482,6 @@ def main():
         result = full_validate(password, blacklist)
         _print_results(result)
         _print_recommendations(result)
-
-        _logger.info(
-            f"Password validation complete: Score={result['score']}, "
-            f"Rating={result['rating']}, Crack time={result['crack_time']}"
-        )
 
         print("-" * 60)
 
