@@ -28,9 +28,9 @@ _CRACK_THRESHOLDS = [
     (1,           0),   # less than 1 second
     (60,          5),   # less than 1 minute
     (3600,       10),   # less than 1 hour
-    (86400,      15),   # less than 1 day
-    (31536000,   20),   # less than 1 year
-    (3153600000, 25),   # less than 100 years
+    (86400,      20),   # less than 1 day
+    (31536000,   30),   # less than 1 year
+    (3153600000, 40),   # less than 100 years
 ]
 
 RATING_THRESHOLDS = [
@@ -134,36 +134,36 @@ def check_hibp(password):
 
 def _check_length(password, **_kwargs):
     if len(password) >= MIN_LENGTH:
-        return 15, f"\u2713 Length requirement met ({len(password)} characters)", None
+        return 10, f"\u2713 Length requirement met ({len(password)} characters)", None
     return 0, None, f"\u2717 Too short (needs {MIN_LENGTH}+ characters, has {len(password)})"
 
 
 def _check_uppercase(password, **_kwargs):
     if any(c.isupper() for c in password):
-        return 10, "\u2713 Contains uppercase letters", None
+        return 5, "\u2713 Contains uppercase letters", None
     return 0, None, "\u2717 No uppercase letters"
 
 
 def _check_lowercase(password, **_kwargs):
     if any(c.islower() for c in password):
-        return 10, "\u2713 Contains lowercase letters", None
+        return 5, "\u2713 Contains lowercase letters", None
     return 0, None, "\u2717 No lowercase letters"
 
 
 def _check_digits(password, **_kwargs):
     if any(c.isdigit() for c in password):
-        return 10, "\u2713 Contains numbers", None
+        return 5, "\u2713 Contains numbers", None
     return 0, None, "\u2717 No numbers"
 
 
 def _check_special(password, **_kwargs):
     if any(c in SPECIAL_CHARS for c in password):
-        return 10, "\u2713 Contains special characters", None
+        return 5, "\u2713 Contains special characters", None
     return 0, None, f"\u2717 No special characters ({SPECIAL_CHARS})"
 
 
 def _check_breach_databases(password, blacklist=None, **_kwargs):
-    """Rule 6: Combined local blacklist + HIBP check (15 points)."""
+    """Rule 6: Combined local blacklist + HIBP check (20 points)."""
     fail_msgs = []
     blacklist_clean = True
     hibp_clean = True
@@ -186,7 +186,7 @@ def _check_breach_databases(password, blacklist=None, **_kwargs):
         hibp_clean = False
 
     if blacklist_clean and hibp_clean:
-        return 15, "\u2713 Not in common password databases", None
+        return 20, "\u2713 Not in common password databases", None
 
     # Return all failure messages joined; caller will split if needed
     return 0, None, fail_msgs
@@ -242,7 +242,7 @@ def validate_password(password, blacklist):
 # ---------------------------------------------------------------------------
 
 def analyze_crack_time(password):
-    """Rule 7: Crack time resistance (up to 30 points).
+    """Rule 7: Crack time resistance (up to 50 points).
 
     Returns (crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning).
     """
@@ -251,7 +251,7 @@ def analyze_crack_time(password):
     crack_time_display = result["crack_times_display"]["offline_slow_hashing_1e4_per_second"]
     crack_time_seconds = result["crack_times_seconds"]["offline_slow_hashing_1e4_per_second"]
 
-    points = 30  # default: 100+ years
+    points = 50  # default: 100+ years
     for limit, pts in _CRACK_THRESHOLDS:
         if crack_time_seconds < limit:
             points = pts
@@ -288,9 +288,9 @@ def full_validate(password, blacklist):
     score += crack_pts
 
     if crack_pts > 0:
-        passed.append(f"\u2713 Crack time resistance ({crack_pts}/30 points)")
+        passed.append(f"\u2713 Crack time resistance ({crack_pts}/50 points)")
     else:
-        failed.append("\u2717 Crack time resistance: cracks in under 1 second (0/30 points)")
+        failed.append("\u2717 Crack time resistance: cracks in under 1 second (0/50 points)")
 
     # Auto-WEAK: crackable in under 1 hour OR found in HIBP breach database
     hibp_breach = any("have i been pwned" in r.lower() for r in failed)

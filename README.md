@@ -37,17 +37,17 @@ streamlit run app.py
 
 ## Scoring
 
-Passwords are scored out of 100 points across 7 categories:
+Passwords are scored out of 100 points across 7 categories. Crack-time resistance carries the most weight (up to 50 points) because it directly measures real-world entropy — character diversity rules are useful nudges, not a substitute for genuine unpredictability. A long passphrase with only lowercase letters can outrank a short, complex password if its crack time is substantially higher.
 
 | Category | Points |
 |----------|--------|
-| Length (12+ characters) | 15 |
-| Contains uppercase letters | 10 |
-| Contains lowercase letters | 10 |
-| Contains numbers | 10 |
-| Contains special characters | 10 |
-| Not in breach databases (rockyou.txt + HIBP) | 15 |
-| Crack-time resistance | 0-30 |
+| Length (12+ characters) | 10 |
+| Contains uppercase letters | 5 |
+| Contains lowercase letters | 5 |
+| Contains numbers | 5 |
+| Contains special characters | 5 |
+| Not in breach databases (rockyou.txt + HIBP) | 20 |
+| Crack-time resistance | 0–50 |
 
 ### Crack-Time Resistance
 
@@ -58,10 +58,10 @@ Points are awarded based on how long it would take to crack the password assumin
 | Less than 1 second | 0 |
 | Less than 1 minute | 5 |
 | Less than 1 hour | 10 |
-| Less than 1 day | 15 |
-| Less than 1 year | 20 |
-| Less than 100 years | 25 |
-| 100+ years | 30 |
+| Less than 1 day | 20 |
+| Less than 1 year | 30 |
+| Less than 100 years | 40 |
+| 100+ years | 50 |
 
 ### Final Rating
 
