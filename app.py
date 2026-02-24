@@ -144,7 +144,7 @@ def inject_global_styles():
             --amber-dim:   rgba(245, 166, 35, 0.08);
             --amber-glow:  rgba(245, 166, 35, 0.22);
             --text:        #CECEE0;
-            --text-dim:    #46466A;
+            --text-dim:    #7878A0;
             --green:       #00E676;
             --red:         #FF1744;
             --orange:      #FF6D00;
@@ -410,11 +410,6 @@ def render_header():
             <div style="position:absolute; top:0; right:0; background:#F5A623; color:#06060C; font-size:0.55rem; font-weight:800; letter-spacing:0.2em; padding:0.2rem 0.8rem; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">PSV-01 // SECURE</div>
             <div style="color:#46466A; font-size:0.6rem; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:0.55rem; font-family:'JetBrains Mono',monospace;">Security Analysis Terminal</div>
             <div style="color:#CECEE0; font-size:1.65rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; line-height:1; font-family:'JetBrains Mono',monospace;">Password Validator</div>
-            <div style="display:flex; gap:1.5rem; margin-top:1rem;">
-                <span style="color:#46466A; font-size:0.58rem; letter-spacing:0.14em; font-family:'JetBrains Mono',monospace;">&#x2B21; BREACH DETECTION</span>
-                <span style="color:#46466A; font-size:0.58rem; letter-spacing:0.14em; font-family:'JetBrains Mono',monospace;">&#x2B21; ENTROPY ANALYSIS</span>
-                <span style="color:#46466A; font-size:0.58rem; letter-spacing:0.14em; font-family:'JetBrains Mono',monospace;">&#x2B21; PATTERN SCORING</span>
-            </div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -643,7 +638,7 @@ def render_validation_results(password, blacklist):
 
     # ── Section separator ──────────────────────────────────────────────────
     st.markdown(
-        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Analysis Results</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
+        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Analysis Results</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
         unsafe_allow_html=True,
     )
 
@@ -779,7 +774,7 @@ password = st.text_input(
 )
 
 st.markdown(
-    '<p style="text-align:right; font-size:0.6rem; color:#46466A; '
+    '<p style="text-align:right; font-size:0.6rem; color:#7878A0; '
     'margin:-0.5rem 0 0.75rem 0; letter-spacing:0.1em;">'
     '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD</p>',
     unsafe_allow_html=True,
