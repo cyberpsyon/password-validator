@@ -560,27 +560,30 @@ def render_scoring_panel():
     with st.expander("How Scoring Works"):
         st.markdown(
             "Your password is scored out of **100 points** across 7 categories. "
-            "Each category checks a different aspect of password strength."
+            "Crack-time resistance carries the most weight because it directly measures "
+            "real-world entropy — character diversity rules are useful nudges, not a "
+            "substitute for genuine unpredictability."
         )
 
         st.markdown("#### Point Breakdown")
         st.markdown(
             "| Category | Points |\n"
             "|----------|--------|\n"
-            "| Length (12+ characters) | 15 |\n"
-            "| Contains uppercase letters | 10 |\n"
-            "| Contains lowercase letters | 10 |\n"
-            "| Contains numbers | 10 |\n"
-            "| Contains special characters | 10 |\n"
-            "| Not in breach databases | 15 |\n"
-            "| Crack-time resistance | 0\u201330 |"
+            "| Length (12+ characters) | 10 |\n"
+            "| Contains uppercase letters | 5 |\n"
+            "| Contains lowercase letters | 5 |\n"
+            "| Contains numbers | 5 |\n"
+            "| Contains special characters | 5 |\n"
+            "| Not in breach databases | 20 |\n"
+            "| Crack-time resistance | 0\u201350 |"
         )
 
         st.markdown("#### Crack-Time Resistance")
         st.markdown(
             "This category uses [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python) "
             "pattern analysis to estimate how long a real-world attacker would need to "
-            "crack your password assuming bcrypt hashing at 10,000 guesses per second."
+            "crack your password assuming bcrypt hashing at 10,000 guesses per second. "
+            "At 50 points it is the single largest factor in your score."
         )
         st.markdown(
             "| Estimated Crack Time | Points |\n"
@@ -588,10 +591,10 @@ def render_scoring_panel():
             "| Less than 1 second | 0 |\n"
             "| Less than 1 minute | 5 |\n"
             "| Less than 1 hour | 10 |\n"
-            "| Less than 1 day | 15 |\n"
-            "| Less than 1 year | 20 |\n"
-            "| Less than 100 years | 25 |\n"
-            "| 100+ years | 30 |"
+            "| Less than 1 day | 20 |\n"
+            "| Less than 1 year | 30 |\n"
+            "| Less than 100 years | 40 |\n"
+            "| 100+ years | 50 |"
         )
 
         st.markdown("#### Final Rating")
