@@ -65,11 +65,11 @@ _SAFETY_TIPS = [
      "You only need to remember one master password, and the manager fills in "
      "the rest. Popular options include Bitwarden, 1Password, and KeePass."),
 
-    ("Enable two-factor authentication (2FA)",
-     "Two-factor authentication adds a second step when you log in, like a "
+    ("Enable multi-factor authentication (MFA)",
+     "Multi-factor authentication adds another step when you log in, like a "
      "code from an app on your phone or a physical security key. Even if "
      "someone steals your password, they still cannot get into your account "
-     "without that second step. Turn on 2FA everywhere it is available, "
+     "without that second step. Turn on MFA everywhere it is available, "
      "especially for email, banking, and work accounts."),
 
     ("Longer passwords are stronger passwords",
@@ -99,7 +99,7 @@ _SAFETY_TIPS = [
      "Even if this tool rates your password as \"Excellent\" with a crack time "
      "of centuries, no password is truly permanent. Advances in technology, "
      "including quantum computing, will make password cracking significantly "
-     "faster in the future. Always combine strong passwords with 2FA and "
+     "faster in the future. Always combine strong passwords with MFA and "
      "regular password rotation to stay protected."),
 ]
 
@@ -470,66 +470,106 @@ def render_threat_gauge(crack_time_display, crack_seconds):
 # Password / passphrase generators
 # ---------------------------------------------------------------------------
 
+def _copy_output_html(value: str, el_id: str) -> str:
+    """Render a code-style output div with a terminal copy button."""
+    import json
+    # Use single-quoted onclick attribute so json.dumps double-quotes don't break it
+    js_value = json.dumps(value)
+    return _html(
+        f'<div style="display:flex;align-items:stretch;">'
+        f'<div style="flex:1;background:var(--surface2);border:1px solid var(--border2);'
+        f'padding:0.75rem 1rem;font-family:JetBrains Mono,monospace;font-size:0.9rem;'
+        f'color:var(--green);letter-spacing:0.08em;word-break:break-all;user-select:all;"'
+        f' id="{el_id}">{html.escape(value)}</div>'
+        f"<span onclick='navigator.clipboard.writeText({js_value});this.textContent=\"✓\";setTimeout(()=>this.textContent=\"Copy\",2000);'"
+        f' style="background:transparent;border:1px solid var(--border2);border-left:0;'
+        f'color:var(--amber);font-family:JetBrains Mono,monospace;font-size:0.65rem;'
+        f'letter-spacing:0.15em;text-transform:uppercase;padding:0 0.9rem;cursor:pointer;'
+        f'white-space:nowrap;display:flex;align-items:center;">Copy</span>'
+        f'</div>'
+    )
+
+
 def render_generator_panel():
     """Password generator UI inside an expander."""
-    with st.expander("Generate a strong password"):
-        gen_length = st.slider("Length", min_value=MIN_LENGTH, max_value=MAX_LENGTH, value=20)
+    def _on_generate():
+        st.session_state["pw_gen_open"] = True
+        generated = generate_password(
+            st.session_state.get("gen_length", 20),
+            st.session_state.get("gen_upper", True),
+            st.session_state.get("gen_lower", True),
+            st.session_state.get("gen_digits", True),
+            st.session_state.get("gen_special", True),
+        )
+        if generated is None:
+            st.session_state["pw_gen_error"] = True
+        else:
+            st.session_state.pop("pw_gen_error", None)
+            st.session_state["generated_password"] = generated
+
+    with st.expander("Generate a strong password", expanded=st.session_state.pop("pw_gen_open", False)):
+        st.slider("Length", min_value=MIN_LENGTH, max_value=MAX_LENGTH, value=20, key="gen_length")
         gc1, gc2, gc3, gc4 = st.columns(4)
         with gc1:
-            gen_upper = st.checkbox("Uppercase", value=True)
+            st.checkbox("Uppercase", value=True, key="gen_upper")
         with gc2:
-            gen_lower = st.checkbox("Lowercase", value=True)
+            st.checkbox("Lowercase", value=True, key="gen_lower")
         with gc3:
-            gen_digits = st.checkbox("Digits", value=True)
+            st.checkbox("Digits", value=True, key="gen_digits")
         with gc4:
-            gen_special = st.checkbox("Special", value=True)
+            st.checkbox("Special", value=True, key="gen_special")
 
-        if st.button("Generate"):
-            generated = generate_password(
-                gen_length, gen_upper, gen_lower, gen_digits, gen_special,
-            )
-            if generated is None:
-                st.warning("Select at least one character set.")
-            else:
-                st.session_state["generated_password"] = generated
+        st.button("Generate", on_click=_on_generate)
+        if st.session_state.get("pw_gen_error"):
+            st.warning("Select at least one character set.")
 
         if "generated_password" in st.session_state:
-            st.code(st.session_state["generated_password"], language=None)
+            st.markdown(
+                _copy_output_html(st.session_state["generated_password"], "pw-output"),
+                unsafe_allow_html=True,
+            )
 
 
 def render_passphrase_panel():
     """Passphrase generator UI inside an expander."""
-    with st.expander("Generate a strong passphrase"):
-        pp_words = st.slider("Word count", min_value=3, max_value=8, value=4,
-                             key="pp_word_count")
-        pp_sep = st.selectbox("Separator", list(_SEPARATORS.keys()),
-                              index=0, key="pp_separator")
+    def _on_generate():
+        st.session_state["pp_gen_open"] = True
+        passphrase = generate_passphrase(
+            word_count=st.session_state.get("pp_word_count", 4),
+            separator=_SEPARATORS[st.session_state.get("pp_separator", "Hyphen (-)")],
+            use_upper=st.session_state.get("pp_upper", True),
+            use_leet=st.session_state.get("pp_leet", False),
+            use_digits=st.session_state.get("pp_digits", False),
+            use_special=st.session_state.get("pp_special", False),
+        )
+        if passphrase is None:
+            st.session_state["pp_gen_error"] = True
+        else:
+            st.session_state.pop("pp_gen_error", None)
+            st.session_state["generated_passphrase"] = passphrase
+
+    with st.expander("Generate a strong passphrase", expanded=st.session_state.pop("pp_gen_open", False)):
+        st.slider("Word count", min_value=3, max_value=8, value=4, key="pp_word_count")
+        st.selectbox("Separator", list(_SEPARATORS.keys()), index=0, key="pp_separator")
         pc1, pc2, pc3, pc4 = st.columns(4)
         with pc1:
-            pp_upper = st.checkbox("Uppercase", value=True, key="pp_upper")
+            st.checkbox("Uppercase", value=True, key="pp_upper")
         with pc2:
-            pp_leet = st.checkbox("Leetspeak", value=False, key="pp_leet")
+            st.checkbox("Leetspeak", value=False, key="pp_leet")
         with pc3:
-            pp_digits = st.checkbox("Digits", value=False, key="pp_digits")
+            st.checkbox("Digits", value=False, key="pp_digits")
         with pc4:
-            pp_special = st.checkbox("Special", value=False, key="pp_special")
+            st.checkbox("Special", value=False, key="pp_special")
 
-        if st.button("Generate Passphrase"):
-            passphrase = generate_passphrase(
-                word_count=pp_words,
-                separator=_SEPARATORS[pp_sep],
-                use_upper=pp_upper,
-                use_leet=pp_leet,
-                use_digits=pp_digits,
-                use_special=pp_special,
-            )
-            if passphrase is None:
-                st.error("Wordlist not found. Ensure eff_wordlist.txt is in the project directory.")
-            else:
-                st.session_state["generated_passphrase"] = passphrase
+        st.button("Generate Passphrase", on_click=_on_generate)
+        if st.session_state.get("pp_gen_error"):
+            st.error("Wordlist not found. Ensure eff_wordlist.txt is in the project directory.")
 
         if "generated_passphrase" in st.session_state:
-            st.code(st.session_state["generated_passphrase"], language=None)
+            st.markdown(
+                _copy_output_html(st.session_state["generated_passphrase"], "pp-output"),
+                unsafe_allow_html=True,
+            )
 
 
 # ---------------------------------------------------------------------------
