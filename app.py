@@ -3,6 +3,7 @@ import re
 import time
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from password_validator import (
     load_blacklist,
@@ -470,23 +471,37 @@ def render_threat_gauge(crack_time_display, crack_seconds):
 # Password / passphrase generators
 # ---------------------------------------------------------------------------
 
-def _copy_output_html(value: str, el_id: str) -> str:
-    """Render a code-style output div with a terminal copy button."""
+def _render_copy_output(value: str) -> None:
+    """Render a code-style output div with a working copy button via iframe."""
     import json
-    # Use single-quoted onclick attribute so json.dumps double-quotes don't break it
-    js_value = json.dumps(value)
-    return _html(
-        f'<div style="display:flex;align-items:stretch;">'
-        f'<div style="flex:1;background:var(--surface2);border:1px solid var(--border2);'
-        f'padding:0.75rem 1rem;font-family:JetBrains Mono,monospace;font-size:0.9rem;'
-        f'color:var(--green);letter-spacing:0.08em;word-break:break-all;user-select:all;"'
-        f' id="{el_id}">{html.escape(value)}</div>'
-        f"<span onclick='navigator.clipboard.writeText({js_value});this.textContent=\"✓\";setTimeout(()=>this.textContent=\"Copy\",2000);'"
-        f' style="background:transparent;border:1px solid var(--border2);border-left:0;'
-        f'color:var(--amber);font-family:JetBrains Mono,monospace;font-size:0.65rem;'
-        f'letter-spacing:0.15em;text-transform:uppercase;padding:0 0.9rem;cursor:pointer;'
-        f'white-space:nowrap;display:flex;align-items:center;">Copy</span>'
-        f'</div>'
+    js_value = html.escape(json.dumps(value))  # &quot; survives the onclick attribute
+    components.html(
+        f"""
+        <style>
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'JetBrains Mono',monospace; }}
+        body {{ background:transparent; }}
+        #wrap {{ display:flex; align-items:stretch; }}
+        #out {{
+            flex:1; background:#111120; border:1px solid #222240;
+            padding:0.75rem 1rem; font-size:0.9rem; color:#00E676;
+            letter-spacing:0.08em; word-break:break-all; user-select:all;
+        }}
+        #btn {{
+            background:transparent; border:1px solid #222240; border-left:0;
+            color:#F5A623; font-size:0.65rem; letter-spacing:0.15em;
+            text-transform:uppercase; padding:0 0.9rem; cursor:pointer;
+            white-space:nowrap; display:flex; align-items:center;
+            user-select:none; outline:none;
+        }}
+        #btn:hover {{ background:rgba(245,166,35,0.08); }}
+        #btn:focus {{ outline:none; }}
+        </style>
+        <div id="wrap">
+            <div id="out">{html.escape(value)}</div>
+            <div id="btn" onclick="navigator.clipboard.writeText({js_value});this.textContent='✓';setTimeout(()=>this.textContent='Copy',2000);">Copy</div>
+        </div>
+        """,
+        height=52,
     )
 
 
@@ -524,10 +539,7 @@ def render_generator_panel():
             st.warning("Select at least one character set.")
 
         if "generated_password" in st.session_state:
-            st.markdown(
-                _copy_output_html(st.session_state["generated_password"], "pw-output"),
-                unsafe_allow_html=True,
-            )
+            _render_copy_output(st.session_state["generated_password"])
 
 
 def render_passphrase_panel():
@@ -566,10 +578,7 @@ def render_passphrase_panel():
             st.error("Wordlist not found. Ensure eff_wordlist.txt is in the project directory.")
 
         if "generated_passphrase" in st.session_state:
-            st.markdown(
-                _copy_output_html(st.session_state["generated_passphrase"], "pp-output"),
-                unsafe_allow_html=True,
-            )
+            _render_copy_output(st.session_state["generated_passphrase"])
 
 
 # ---------------------------------------------------------------------------
