@@ -86,7 +86,7 @@ _SAFETY_TIPS = [
 
     ("Watch for data breaches",
      "Data breaches happen regularly, and your information may be exposed "
-     "without you knowing. Sign up for free alerts at haveibeenpwned.com to "
+     "without you knowing. Sign up for free alerts at [Have I Been Pwned](https://haveibeenpwned.com) to "
      "get notified if your email appears in a breach. When you get an alert, "
      "change the password for that account immediately."),
 
