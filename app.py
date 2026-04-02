@@ -64,7 +64,7 @@ _SAFETY_TIPS = [
      "Nobody can remember dozens of strong, unique passwords. A password "
      "manager is an app that securely stores all of your passwords for you. "
      "You only need to remember one master password, and the manager fills in "
-     "the rest. Popular options include Bitwarden, 1Password, and KeePass."),
+     "the rest. Popular options include 1Password, Bitwarden, and KeePass."),
 
     ("Enable multi-factor authentication (MFA)",
      "Multi-factor authentication adds another step when you log in, like a "
