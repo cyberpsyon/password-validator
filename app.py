@@ -530,7 +530,7 @@ def render_generator_panel():
         with gc2:
             st.checkbox("Lowercase", value=True, key="gen_lower")
         with gc3:
-            st.checkbox("Digits", value=True, key="gen_digits")
+            st.checkbox("Numbers", value=True, key="gen_digits")
         with gc4:
             st.checkbox("Special", value=True, key="gen_special")
 
@@ -569,7 +569,7 @@ def render_passphrase_panel():
         with pc2:
             st.checkbox("Leetspeak", value=False, key="pp_leet")
         with pc3:
-            st.checkbox("Digits", value=False, key="pp_digits")
+            st.checkbox("Numbers", value=False, key="pp_digits")
         with pc4:
             st.checkbox("Special", value=False, key="pp_special")
 
@@ -624,7 +624,7 @@ def render_scoring_panel():
 
         st.markdown("#### Crack-Time Resistance")
         st.markdown(
-            "This category uses [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python) "
+            "This category uses [zxcvbn](https://dropbox.tech/security/zxcvbn-realistic-password-strength-estimation) "
             "pattern analysis to estimate how long a real-world attacker would need to "
             "crack your password assuming bcrypt hashing at 10,000 guesses per second. "
             "At 50 points it is the single largest factor in your score."
@@ -653,7 +653,7 @@ def render_scoring_panel():
         )
         st.markdown(
             "Any password that can be cracked in **under 1 hour** or is found in the "
-            "**Have I Been Pwned** breach database is automatically rated **WEAK** "
+            "[Have I Been Pwned](https://haveibeenpwned.com/) breach database is automatically rated **WEAK** "
             "regardless of its total score."
         )
 
