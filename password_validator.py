@@ -4,6 +4,7 @@
 
 import hashlib
 import logging
+import math
 import os
 import secrets
 import string
@@ -128,10 +129,10 @@ def _check_breach_databases(password, **_kwargs):
     """Rule 6: HIBP breach check (20 points)."""
     hibp_found, hibp_count, hibp_error = check_hibp(password)
     if hibp_error:
-        return 0, None, ["\u26a0 HIBP API unavailable: cannot verify against breach database"]
+        return 0, None, ["\u26a0 HIBP API unavailable: cannot verify against breach database"], None
     if hibp_found:
-        return 0, None, [f"\u2717 Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)"]
-    return 20, "\u2713 Not found in breach databases", None
+        return 0, None, [f"\u2717 Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)"], hibp_count
+    return 20, "\u2713 Not found in breach databases", None, 0
 
 
 _RULES = [
@@ -149,23 +150,27 @@ _RULES = [
 # ---------------------------------------------------------------------------
 
 def validate_password(password):
-    """Run all rule checks. Returns (score, max_score, failed_rules, passed_rules)."""
+    """Run all rule checks. Returns (score, max_score, failed_rules, passed_rules, hibp_count)."""
     if not password:
         _logger.warning("Validation failed: Empty password provided")
-        return 0, 100, ["Password cannot be empty"], []
+        return 0, 100, ["Password cannot be empty"], [], None
 
     if not isinstance(password, str):
         _logger.warning("Validation failed: Password must be a string")
-        return 0, 100, ["Password must be text"], []
+        return 0, 100, ["Password must be text"], [], None
 
     if len(password) > MAX_LENGTH:
         _logger.warning("Validation failed: Password exceeds maximum length")
-        return 0, 100, [f"Password too long (max {MAX_LENGTH} characters)"], []
+        return 0, 100, [f"Password too long (max {MAX_LENGTH} characters)"], [], None
 
     score, passed, failed = 0, [], []
+    hibp_count = None
 
     for rule in _RULES:
-        pts, ok_msg, fail_msg = rule(password)
+        if rule is _check_breach_databases:
+            pts, ok_msg, fail_msg, hibp_count = rule(password)
+        else:
+            pts, ok_msg, fail_msg = rule(password)
         score += pts
         if ok_msg:
             passed.append(ok_msg)
@@ -175,7 +180,75 @@ def validate_password(password):
             else:
                 failed.append(fail_msg)
 
-    return score, 100, failed, passed
+    return score, 100, failed, passed, hibp_count
+
+
+# ---------------------------------------------------------------------------
+# Attack sequence parser
+# ---------------------------------------------------------------------------
+
+_DICT_DESCRIPTIONS = {
+    "passwords":        "common password",
+    "english_wikipedia": "common English word",
+    "surnames":         "common surname",
+    "male_names":       "common first name",
+    "female_names":     "common first name",
+    "us_tv_and_film":   "word from TV/film",
+}
+
+
+def _parse_attack_sequence(zxcvbn_result):
+    """Map zxcvbn sequence matches to display-ready attack dicts.
+
+    Each dict has: tag (str), token (str), description (str), severity (str).
+    Bruteforce tokens are included so callers can detect the no-pattern case.
+    """
+    items = []
+    for match in zxcvbn_result.get("sequence", []):
+        pattern = match.get("pattern", "bruteforce")
+
+        if pattern == "dictionary":
+            tag = "DICT"
+            severity = "critical"
+            dict_name = match.get("dictionary_name", "")
+            description = _DICT_DESCRIPTIONS.get(dict_name, "common dictionary word")
+            if match.get("l33t"):
+                description += " (leetspeak substitution)"
+            if match.get("reversed"):
+                description += " (reversed)"
+        elif pattern == "spatial":
+            tag = "KEY"
+            severity = "critical"
+            graph = match.get("graph", "keyboard")
+            description = f"keyboard walk ({graph})"
+        elif pattern == "repeat":
+            tag = "RPT"
+            severity = "low"
+            description = "repeated character or string"
+        elif pattern == "sequence":
+            tag = "SEQ"
+            severity = "moderate"
+            description = "sequential characters (abc, 123)"
+        elif pattern == "regex":
+            tag = "RPT"
+            severity = "low"
+            description = "single character class"
+        elif pattern == "date":
+            tag = "DATE"
+            severity = "moderate"
+            description = "date or year pattern"
+        else:  # bruteforce
+            tag = "BRUTE"
+            severity = "none"
+            description = "no pattern detected"
+
+        items.append({
+            "tag": tag,
+            "token": match.get("token", ""),
+            "description": description,
+            "severity": severity,
+        })
+    return items
 
 
 # ---------------------------------------------------------------------------
@@ -185,7 +258,8 @@ def validate_password(password):
 def analyze_crack_time(password):
     """Rule 7: Crack time resistance (up to 50 points).
 
-    Returns (crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning).
+    Returns (crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning,
+             entropy_bits, attack_sequence, guesses).
     """
     # bcrypt truncates at 72 bytes; zxcvbn enforces the same limit
     result = zxcvbn.zxcvbn(password[:72])
@@ -203,7 +277,11 @@ def analyze_crack_time(password):
     suggestions = result["feedback"].get("suggestions", [])
     warning = result["feedback"].get("warning", "")
 
-    return crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning
+    guesses = float(result["guesses"])
+    entropy_bits = round(math.log2(max(guesses, 1)), 1)
+    attack_sequence = _parse_attack_sequence(result)
+
+    return crack_time_display, crack_time_seconds, points, hard_fail, suggestions, warning, entropy_bits, attack_sequence, guesses
 
 
 def get_rating(score):
@@ -224,8 +302,9 @@ def full_validate(password):
     Combines validate_password() + analyze_crack_time() + get_rating()
     so both CLI and Streamlit call a single function.
     """
-    score, max_score, failed, passed = validate_password(password)
-    crack_time, crack_seconds, crack_pts, hard_fail, suggestions, warning = analyze_crack_time(password)
+    score, max_score, failed, passed, hibp_count = validate_password(password)
+    (crack_time, crack_seconds, crack_pts, hard_fail, suggestions, warning,
+     entropy_bits, attack_sequence, guesses) = analyze_crack_time(password)
     score += crack_pts
 
     if crack_pts > 0:
@@ -240,16 +319,20 @@ def full_validate(password):
     rating = "WEAK" if hard_fail else get_rating(score)
 
     return {
-        "score": score,
-        "max_score": max_score,
-        "rating": rating,
-        "hard_fail": hard_fail,
-        "crack_time": crack_time,
-        "crack_seconds": crack_seconds,
-        "passed": passed,
-        "failed": failed,
-        "suggestions": suggestions,
-        "warning": warning,
+        "score":           score,
+        "max_score":       max_score,
+        "rating":          rating,
+        "hard_fail":       hard_fail,
+        "crack_time":      crack_time,
+        "crack_seconds":   crack_seconds,
+        "passed":          passed,
+        "failed":          failed,
+        "suggestions":     suggestions,
+        "warning":         warning,
+        "entropy_bits":    entropy_bits,
+        "attack_sequence": attack_sequence,
+        "guesses":         guesses,
+        "hibp_count":      hibp_count,
     }
 
 
