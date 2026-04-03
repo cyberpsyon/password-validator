@@ -384,6 +384,23 @@ def inject_global_styles():
             animation: terminalReveal 0.3s ease-out forwards;
         }
 
+        /* ── Input disclaimer cycling ── */
+        @keyframes pvLeft {
+            0%, 35%  { opacity: 1; }
+            40%      { opacity: 0; }
+            95%      { opacity: 0; }
+            100%     { opacity: 1; }
+        }
+        @keyframes pvRight {
+            0%, 45%  { opacity: 0; }
+            50%      { opacity: 1; }
+            80%      { opacity: 1; }
+            85%      { opacity: 0; }
+            100%     { opacity: 0; }
+        }
+        .pv-left  { animation: pvLeft  10s linear infinite; }
+        .pv-right { animation: pvRight 10s linear infinite; }
+
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -622,6 +639,19 @@ def render_scoring_panel():
             "| Crack-time resistance | 0\u201350 |"
         )
 
+        st.markdown("#### Breach Database Checks")
+        st.markdown(
+            "Your password is checked against two independent sources:\n\n"
+            "- **rockyou.txt** — A wordlist of 14 million real passwords leaked in the [2009 RockYou breach](https://en.wikipedia.org/wiki/RockYou). "
+            "It is one of the first files attackers load into cracking tools. "
+            "If your password is on this list, it will be tried within seconds of any attack.\n\n"
+            "- **[Have I Been Pwned](https://haveibeenpwned.com)** — A database of over 900 million passwords "
+            "collected from hundreds of real-world data breaches. If your password appears here, it means "
+            "someone, somewhere, has already used it — and attackers have it too. "
+            "Your password is checked privately using k-anonymity: only the first 5 characters of its hash "
+            "are ever transmitted, so your actual password never leaves your device."
+        )
+
         st.markdown("#### Crack-Time Resistance")
         st.markdown(
             "This category uses [zxcvbn](https://dropbox.tech/security/zxcvbn-realistic-password-strength-estimation) "
@@ -652,9 +682,8 @@ def render_scoring_panel():
             "| WEAK | Below 40 |"
         )
         st.markdown(
-            "Any password that can be cracked in **under 1 hour** or is found in the "
-            "[Have I Been Pwned](https://haveibeenpwned.com/) breach database is automatically rated **WEAK** "
-            "regardless of its total score."
+            "Any password that can be cracked in **under 1 hour** or is found in either breach database "
+            "is automatically rated **WEAK** regardless of its total score."
         )
 
 
@@ -823,12 +852,15 @@ password = st.text_input(
 )
 
 st.markdown(
-    '<p style="text-align:left; font-size:0.6rem; color:#7878A0; '
-    'margin:-0.5rem 0 0 0; letter-spacing:0.1em;">'
-    '&#128274; YOUR PASSWORD IS NEVER SENT TO OUR SERVERS OR STORED.</p>'
-    '<p style="text-align:left; font-size:0.6rem; color:#7878A0; '
-    'margin:0 0 0.75rem 0; letter-spacing:0.1em;">'
-    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</p>',
+    '<div style="position:relative; height:1rem; '
+    'margin:-0.5rem 0 0.75rem 0;">'
+    '<span class="pv-left" style="position:absolute; width:100%; left:0; '
+    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:left;">'
+    '&#128274; YOUR PASSWORD IS NEVER SENT TO OUR SERVERS OR STORED.</span>'
+    '<span class="pv-right" style="position:absolute; width:100%; left:0; '
+    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:right;">'
+    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</span>'
+    '</div>',
     unsafe_allow_html=True,
 )
 
