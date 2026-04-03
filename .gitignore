@@ -9,6 +9,7 @@ __pycache__/
 
 # Local tool settings
 .claude/
+CLAUDE.local.md
 
 # Internal planning docs
 docs/superpowers/
