@@ -899,7 +899,7 @@ def render_share_card(result, compliance):
     elif hibp_passed:
         hibp_row = _check_row(True, "Not found in Have I Been Pwned breach database", "")
     else:
-        count_str = f" ({hibp_count:,} breaches)" if hibp_count else ""
+        count_str = f" ({hibp_count:,} breaches)" if hibp_count is not None else ""
         hibp_row = _check_row(False, "",
                               f"Found in Have I Been Pwned breach database{count_str}")
 
@@ -1098,7 +1098,7 @@ def render_validation_results(password):
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
-        if "have i been pwned" in rule.lower() and result.get("hibp_count"):
+        if "have i been pwned" in rule.lower() and result.get("hibp_count") is not None:
             count = result["hibp_count"]
             rows_html += (
                 f'<div style="padding:0.3rem 0.6rem 0.5rem 2.5rem; font-size:0.67rem; '
