@@ -41,7 +41,7 @@ Passwords are scored out of 100 points across 7 categories. Crack-time resistanc
 
 | Category | Points |
 |----------|--------|
-| Length (12+ characters) | 10 |
+| Length (15+ characters) | 10 |
 | Contains uppercase letters | 5 |
 | Contains lowercase letters | 5 |
 | Contains numbers | 5 |

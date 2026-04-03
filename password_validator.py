@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 # -- Constants --
 SPECIAL_CHARS = "!@#$%^&*()_+-=[]{}|;:,.<>?"
-MIN_LENGTH = 12
+MIN_LENGTH = 15
 MAX_LENGTH = 128
 
 HIBP_HEADERS = {

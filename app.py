@@ -660,7 +660,7 @@ def render_scoring_panel():
         st.markdown(
             "| Category | Points |\n"
             "|----------|--------|\n"
-            "| Length (12+ characters) | 10 |\n"
+            "| Length (15+ characters) | 10 |\n"
             "| Contains uppercase letters | 5 |\n"
             "| Contains lowercase letters | 5 |\n"
             "| Contains numbers | 5 |\n"
