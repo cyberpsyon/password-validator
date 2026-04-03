@@ -71,12 +71,15 @@ _SAFETY_TIPS = [
      "code from an app on your phone or a physical security key. Even if "
      "someone steals your password, they still cannot get into your account "
      "without that second step. Turn on MFA everywhere it is available, "
-     "especially for email, banking, and work accounts."),
+     "especially for email, banking, and work accounts. Avoid SMS-based MFA "
+     "when possible — authenticator apps (like Authy or Google Authenticator) "
+     "and hardware security keys (like YubiKey) are significantly harder to "
+     "intercept or bypass."),
 
     ("Longer passwords are stronger passwords",
      "A 20-character passphrase made of random words (like \"correct-horse-battery-staple\") "
      "is both stronger and easier to type than a short, complicated password "
-     "like \"P@s5w0rd!\". Aim for at least 12 characters, but longer is always better."),
+     "like \"P@s5w0rd!\". Aim for at least 15 characters — but longer is always better."),
 
     ("Never share passwords over email or chat",
      "No legitimate company, IT department, or government agency will ever ask "
@@ -100,8 +103,10 @@ _SAFETY_TIPS = [
      "Even if this tool rates your password as \"Excellent\" with a crack time "
      "of centuries, no password is truly permanent. Advances in technology, "
      "including quantum computing, will make password cracking significantly "
-     "faster in the future. Always combine strong passwords with MFA and "
-     "regular password rotation to stay protected."),
+     "faster in the future. Combine strong passwords with MFA and change a "
+     "password only when you have reason to believe it has been compromised — "
+     "routine rotation tends to produce weaker, predictable passwords and is "
+     "no longer recommended."),
 ]
 
 
@@ -446,7 +451,7 @@ def render_header():
         _html("""
         <div style="border:1px solid #222240; border-top:2px solid #F5A623; background:#0D0D1A; padding:1.75rem 2rem 1.5rem; margin-bottom:2rem; position:relative;">
             <div style="position:absolute; top:0; right:0; background:#F5A623; color:#06060C; font-size:0.55rem; font-weight:800; letter-spacing:0.2em; padding:0.2rem 0.8rem; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">PSV-01 // SECURE</div>
-            <div style="color:#46466A; font-size:0.6rem; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:0.55rem; font-family:'JetBrains Mono',monospace;">Security Analysis Terminal</div>
+            <div style="color:#7878A0; font-size:0.6rem; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:0.55rem; font-family:'JetBrains Mono',monospace;">Security Analysis Terminal</div>
             <div style="color:#CECEE0; font-size:1.65rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; line-height:1; font-family:'JetBrains Mono',monospace;">Password Validator</div>
         </div>
         """),
@@ -488,7 +493,7 @@ def render_threat_gauge(crack_time_display, crack_seconds):
         _html(f"""
         <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
             <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.8rem;">
-                <span style="font-size:0.6rem; color:#46466A; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Estimated Crack Time</span>
+                <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Estimated Crack Time</span>
                 <span style="font-size:1.3rem; font-weight:800; color:{tier_color}; letter-spacing:0.06em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">{html.escape(crack_time_display)}</span>
             </div>
             <div style="width:100%; height:1.35rem; display:flex; overflow:hidden;">
@@ -626,7 +631,7 @@ def render_safety_tips_panel():
     """Render password safety tips as collapsible sub-expanders."""
     with st.expander("Safety Tips"):
         st.markdown(
-            '<p style="color:#46466A; font-size:0.76rem; margin-bottom:1rem;">'
+            '<p style="color:#7878A0; font-size:0.76rem; margin-bottom:1rem;">'
             "Follow these tips to keep your accounts safe. "
             "Click on any tip to learn more.</p>",
             unsafe_allow_html=True,
@@ -634,6 +639,11 @@ def render_safety_tips_panel():
         for title, body in _SAFETY_TIPS:
             with st.expander(title):
                 st.markdown(body)
+        st.markdown(
+            '<p style="color:#46466A; font-size:0.65rem; margin-top:0.75rem; letter-spacing:0.04em;">'
+            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:#46466A;'>NIST SP 800-63B Rev. 4</a> (finalized August 2025).</p>",
+            unsafe_allow_html=True,
+        )
 
 
 def render_scoring_panel():
@@ -745,14 +755,14 @@ def render_validation_results(password, blacklist):
         _html(f"""
         <div class="t-reveal" style="display:grid; grid-template-columns:2fr 1fr; gap:1px; background:#181830; border:1px solid #222240; margin-bottom:0.75rem;">
             <div style="background:#0D0D1A; padding:1.5rem 2rem;">
-                <div style="font-size:0.58rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
-                <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:1rem; color:#46466A; font-weight:400;"> / {max_score}</span></div>
+                <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
+                <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:1rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
                 <div style="margin-top:1rem; width:100%; height:4px; background:#111120;">
                     <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
                 </div>
             </div>
             <div style="background:#0D0D1A; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center;">
-                <div style="font-size:0.56rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
+                <div style="font-size:0.56rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
                 <div id="pv-rating" data-rating="{html.escape(rating)}" style="color:{color}; font-size:1.1rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.9rem; box-shadow:{shadow};"></div>
             </div>
         </div>
@@ -802,7 +812,7 @@ def render_validation_results(password, blacklist):
 
     if not rows_html:
         rows_html = (
-            '<span style="color:#46466A; font-size:0.78rem; '
+            '<span style="color:#7878A0; font-size:0.78rem; '
             'font-family:JetBrains Mono,monospace;">No rules evaluated.</span>'
         )
 
@@ -810,7 +820,7 @@ def render_validation_results(password, blacklist):
         _html(f"""
         <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">
-                <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
+                <span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
                 <div style="display:flex; gap:1.25rem;">
                     <span style="font-size:0.6rem; color:#00E676; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2713; {len(passed)} passed</span>
                     <span style="font-size:0.6rem; color:#FF1744; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {len(failed)} failed</span>
