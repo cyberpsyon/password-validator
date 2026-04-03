@@ -71,14 +71,14 @@ _SAFETY_TIPS = [
      "someone steals your password, they still cannot get into your account "
      "without that second step. Turn on MFA everywhere it is available, "
      "especially for email, banking, and work accounts. Avoid SMS-based MFA "
-     "when possible — authenticator apps (like Authy or Google Authenticator) "
+     "when possible. Authenticator apps (like Authy or Google Authenticator) "
      "and hardware security keys (like YubiKey) are significantly harder to "
      "intercept or bypass."),
 
     ("Longer passwords are stronger passwords",
      "A 20-character passphrase made of random words (like \"correct-horse-battery-staple\") "
      "is both stronger and easier to type than a short, complicated password "
-     "like \"P@s5w0rd!\". Aim for at least 15 characters — but longer is always better."),
+     "like \"P@s5w0rd!\". Aim for at least 15 characters, but longer is always better."),
 
     ("Never share passwords over email or chat",
      "No legitimate company, IT department, or government agency will ever ask "
@@ -103,8 +103,8 @@ _SAFETY_TIPS = [
      "of centuries, no password is truly permanent. Advances in technology, "
      "including quantum computing, will make password cracking significantly "
      "faster in the future. Combine strong passwords with MFA and change a "
-     "password only when you have reason to believe it has been compromised — "
-     "routine rotation tends to produce weaker, predictable passwords and is "
+     "password only when you have reason to believe it has been compromised. "
+     "Routine rotation tends to produce weaker, predictable passwords and is "
      "no longer recommended."),
 ]
 
@@ -649,7 +649,7 @@ def render_scoring_panel():
         st.markdown(
             "Your password is scored out of **100 points** across 7 categories. "
             "Crack-time resistance carries the most weight because it directly measures "
-            "real-world entropy — character diversity rules are useful nudges, not a "
+            "real-world entropy. Character diversity rules are useful nudges, not a "
             "substitute for genuine unpredictability."
         )
 
@@ -668,13 +668,13 @@ def render_scoring_panel():
 
         st.markdown("#### Breach Database Checks")
         st.markdown(
-            "Your password is checked against **[Have I Been Pwned](https://haveibeenpwned.com)** — "
+            "Your password is checked against **[Have I Been Pwned](https://haveibeenpwned.com)**, "
             "a database of over 900 million passwords collected from hundreds of real-world data breaches. "
-            "If your password appears here, it means someone, somewhere, has already used it — and attackers have it too. "
+            "If your password appears here, it means someone, somewhere, has already used it, and attackers have it too. "
             "Your password is checked privately using k-anonymity: only the first 5 characters of its hash "
             "are ever transmitted, so your actual password never leaves your device.\n\n"
-            "Attackers commonly use wordlists like [rockyou.txt](https://en.wikipedia.org/wiki/RockYou) — "
-            "a list of 14 million real passwords leaked in the 2009 RockYou breach — as their first line of attack. "
+            "Attackers commonly use wordlists like [rockyou.txt](https://en.wikipedia.org/wiki/RockYou), "
+            "a list of 14 million real passwords leaked in the 2009 RockYou breach, as their first line of attack. "
             "Have I Been Pwned contains rockyou.txt and far more, making it the definitive check."
         )
 

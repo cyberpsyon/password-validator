@@ -8,7 +8,7 @@ Available as both a CLI tool and a Streamlit web UI.
 
 - **7-rule scoring system** (100 points max): length, uppercase, lowercase, numbers, special characters, breach database check, and crack-time resistance
 - **Crack-time estimation** using zxcvbn's offline slow-hashing model (bcrypt at 10K guesses/sec), aligned with the [Hive Systems 2025 methodology](https://www.hivesystems.com/blog/are-your-passwords-in-the-green)
-- **Breach database checking** via the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) Pwned Passwords API — 900M+ compromised passwords checked using k-anonymity (your password never leaves your device)
+- **Breach database checking** via the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) Pwned Passwords API. Over 900 million compromised passwords are checked using k-anonymity so your password never leaves your device.
 - **Streamlit web UI** with color-coded score, rating badges, threat gauge, and built-in generators
 - **Password generator**: cryptographically secure random passwords with configurable length and character sets
 - **Passphrase generator**: random passphrases from the [EFF diceware wordlist](https://www.eff.org/dice) (7,776 words) with options for uppercase, leetspeak, digits, special characters, and configurable word count/separator
@@ -35,7 +35,7 @@ streamlit run app.py
 
 ## Scoring
 
-Passwords are scored out of 100 points across 7 categories. Crack-time resistance carries the most weight (up to 50 points) because it directly measures real-world entropy — character diversity rules are useful nudges, not a substitute for genuine unpredictability. A long passphrase with only lowercase letters can outrank a short, complex password if its crack time is substantially higher.
+Passwords are scored out of 100 points across 7 categories. Crack-time resistance carries the most weight (up to 50 points) because it directly measures real-world entropy. Character diversity rules are useful nudges, not a substitute for genuine unpredictability. A long passphrase with only lowercase letters can outrank a short, complex password if its crack time is substantially higher.
 
 | Category | Points |
 |----------|--------|
