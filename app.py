@@ -107,7 +107,7 @@ _SAFETY_TIPS = [
      "No legitimate company, IT department, or government agency will ever ask "
      "you for your password. If someone contacts you asking for your password, "
      "<span style='color:#FF1744;font-weight:700'>it is a scam</span>. Always type your password "
-     "directly into the official website or app, "
+     "<span style='color:#00E676;font-weight:700'>directly</span> into the official website or app, "
      "<span style='color:#FF1744;font-weight:700'>never</span> into an email, text message, or phone call."),
 
     ("Watch for data breaches",
