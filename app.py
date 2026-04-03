@@ -401,6 +401,26 @@ def inject_global_styles():
         .pv-left  { animation: pvLeft  10s linear infinite; }
         .pv-right { animation: pvRight 10s linear infinite; }
 
+        /* ── Result row color coding ── */
+        .pv-row-pass {
+            background: rgba(0, 230, 118, 0.06);
+            border-left: 2px solid var(--green);
+            padding-left: 0.6rem;
+            margin-left: -0.6rem;
+        }
+        .pv-row-fail {
+            background: rgba(255, 23, 68, 0.06);
+            border-left: 2px solid var(--red);
+            padding-left: 0.6rem;
+            margin-left: -0.6rem;
+        }
+        .pv-row-warn {
+            background: rgba(245, 166, 35, 0.08);
+            border-left: 2px solid var(--amber);
+            padding-left: 0.6rem;
+            margin-left: -0.6rem;
+        }
+
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
@@ -758,7 +778,7 @@ def render_validation_results(password, blacklist):
     rows_html = ""
     for rule in passed:
         rows_html += (
-            f'<div style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
+            f'<div class="pv-row-pass" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
             f'<span style="color:#00E676; font-size:0.62rem; font-weight:700; '
             f'letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; '
             f'padding-top:2px;">[ OK ]</span>'
@@ -767,8 +787,9 @@ def render_validation_results(password, blacklist):
             f'</div>'
         )
     for rule in failed:
+        row_class = "pv-row-warn" if rule.startswith("\u26a0") else "pv-row-fail"
         rows_html += (
-            f'<div style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
+            f'<div class="{row_class}" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
             f'<span style="color:#FF1744; font-size:0.62rem; font-weight:700; '
             f'letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; '
             f'padding-top:2px;">[FAIL]</span>'
