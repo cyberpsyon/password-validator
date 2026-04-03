@@ -61,11 +61,11 @@ _SEVERITY_COLORS = {
 }
 
 _TAG_DISPLAY = {
-    "DICT":  "[DICT ]",
-    "KEY":   "[KEY  ]",
-    "DATE":  "[DATE ]",
-    "SEQ":   "[SEQ  ]",
-    "RPT":   "[RPT  ]",
+    "DICT":  "[DICT]",
+    "KEY":   "[KEY]",
+    "DATE":  "[DATE]",
+    "SEQ":   "[SEQ]",
+    "RPT":   "[RPT]",
     "BRUTE": "[BRUTE]",
 }
 
@@ -772,13 +772,13 @@ def render_policy_compliance(password, result, compliance):
             return (
                 f'<div style="text-align:center;">'
                 f'<span style="color:#7878A0; font-size:0.62rem; font-weight:700; '
-                f'font-family:JetBrains Mono,monospace;">[ N/A ]</span>'
+                f'font-family:JetBrains Mono,monospace;">[N/A]</span>'
                 f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
                 f'font-family:JetBrains Mono,monospace;">{html.escape(pass_label)}</div>'
                 f'</div>'
             )
         color = "#00E676" if passed else "#FF1744"
-        badge = "[ PASS ]" if passed else "[ FAIL ]"
+        badge = "[PASS]" if passed else "[FAIL]"
         label = pass_label if passed else fail_label
         return (
             f'<div style="text-align:center;">'
@@ -1088,10 +1088,10 @@ def render_validation_results(password):
     for rule in failed:
         if rule.startswith("\u26a0"):
             row_class = "pv-row-warn"
-            badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[WARN ]</span>'
+            badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[WARN]</span>'
         elif rule.startswith("\u25cb"):
             row_class = "pv-row-opt"
-            badge = '<span style="color:#7878A0; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[OPT ]</span>'
+            badge = '<span style="color:#7878A0; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[OPT]</span>'
         else:
             row_class = "pv-row-fail"
             badge = '<span style="color:#FF1744; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[FAIL]</span>'
