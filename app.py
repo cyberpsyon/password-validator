@@ -746,14 +746,14 @@ def render_validation_results(password, blacklist):
         <div class="t-reveal" style="display:grid; grid-template-columns:2fr 1fr; gap:1px; background:#181830; border:1px solid #222240; margin-bottom:0.75rem;">
             <div style="background:#0D0D1A; padding:1.5rem 2rem;">
                 <div style="font-size:0.58rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
-                <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{score}<span style="font-size:1rem; color:#46466A; font-weight:400;"> / {max_score}</span></div>
+                <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:1rem; color:#46466A; font-weight:400;"> / {max_score}</span></div>
                 <div style="margin-top:1rem; width:100%; height:4px; background:#111120;">
-                    <div style="width:{score_pct:.1f}%; height:100%; background:{color};"></div>
+                    <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
                 </div>
             </div>
             <div style="background:#0D0D1A; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center;">
                 <div style="font-size:0.56rem; color:#46466A; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
-                <div style="color:{color}; font-size:1.1rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.9rem; box-shadow:{shadow};">{html.escape(rating)}</div>
+                <div id="pv-rating" data-rating="{html.escape(rating)}" style="color:{color}; font-size:1.1rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.9rem; box-shadow:{shadow};"></div>
             </div>
         </div>
         """),
