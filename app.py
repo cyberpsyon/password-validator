@@ -80,7 +80,7 @@ _SAFETY_TIPS = [
      "Nobody can remember dozens of strong, unique passwords. A password "
      "manager is an app that securely stores all of your passwords for you. "
      "You only need to remember one master password, and the manager fills in "
-     "the rest. We recommend [1Password](https://1password.com/), the industry-leading option for individuals and teams."),
+     "the rest. [1Password](https://1password.com/) is the industry-leading option for individuals and teams."),
 
     ("Enable multi-factor authentication (MFA)",
      "Multi-factor authentication adds another step when you log in, like a "
