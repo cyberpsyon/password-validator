@@ -53,6 +53,22 @@ _SEPARATORS = {
     "None":          "",
 }
 
+_SEVERITY_COLORS = {
+    "critical": "#FF1744",
+    "moderate": "#FF6D00",
+    "low":      "#F5A623",
+    "none":     "#7878A0",
+}
+
+_TAG_DISPLAY = {
+    "DICT":  "[DICT ]",
+    "KEY":   "[KEY  ]",
+    "DATE":  "[DATE ]",
+    "SEQ":   "[SEQ  ]",
+    "RPT":   "[RPT  ]",
+    "BRUTE": "[BRUTE]",
+}
+
 _SAFETY_TIPS = [
     ("Use a unique password for every account",
      "When a company gets hacked, attackers take the stolen passwords and try "
@@ -735,6 +751,52 @@ def render_scoring_panel():
 # Validation results
 # ---------------------------------------------------------------------------
 
+def render_attack_breakdown(result):
+    """Render the attack method breakdown panel (Deep Analysis section)."""
+    sequence = result.get("attack_sequence", [])
+    non_brute = [s for s in sequence if s["tag"] != "BRUTE"]
+
+    if not non_brute:
+        content_html = (
+            '<div style="color:#00E676; font-size:0.75rem; letter-spacing:0.06em; '
+            'font-family:JetBrains Mono,monospace;">'
+            '\u2713 No exploitable patterns detected. Attacker falls back to pure brute force.</div>'
+        )
+        summary = "Without a recognizable pattern, cracking requires testing every possible combination."
+        summary_color = "#7878A0"
+    else:
+        rows = ""
+        for item in non_brute:
+            color = _SEVERITY_COLORS.get(item["severity"], "#7878A0")
+            tag_display = _TAG_DISPLAY.get(item["tag"], item["tag"])
+            rows += (
+                f'<div style="display:flex; gap:0.8rem; align-items:baseline; margin:0.38rem 0;">'
+                f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
+                f'white-space:nowrap; font-family:JetBrains Mono,monospace;">{html.escape(tag_display)}</span>'
+                f'<span style="color:#F5A623; font-size:0.82rem; font-weight:700; '
+                f'font-family:JetBrains Mono,monospace; white-space:nowrap;">'
+                f'&quot;{html.escape(item["token"])}&quot;</span>'
+                f'<span style="color:#7878A0; font-size:0.72rem; font-family:JetBrains Mono,monospace;">'
+                f'{html.escape(item["description"])}</span>'
+                f'</div>'
+            )
+        content_html = rows
+        summary = ("Attackers use automated tools that try dictionary words, dates, and keyboard "
+                   "patterns before brute force.")
+        summary_color = "#7878A0"
+
+    st.markdown(
+        _html(f"""
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">How An Attacker Would Crack This</div>
+            {content_html}
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+
 def render_validation_results(password):
     """Run validation and display results."""
     if not password:
@@ -890,6 +952,14 @@ def render_validation_results(password):
             """),
             unsafe_allow_html=True,
         )
+
+    # ── Deep Analysis ──────────────────────────────────────────────────────
+    st.markdown(
+        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Deep Analysis</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
+        unsafe_allow_html=True,
+    )
+
+    render_attack_breakdown(result)
 
     st.session_state["validation_done"] = True
     st.session_state["last_validated_password"] = password
