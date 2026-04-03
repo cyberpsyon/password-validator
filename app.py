@@ -1077,27 +1077,26 @@ def render_validation_results(password):
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="display:grid; grid-template-columns:2fr 1fr; gap:1px; background:#181830; border:1px solid #222240; margin-bottom:0.75rem;">
-            <div style="background:#0D0D1A; padding:1.5rem 2rem;">
-                <div style="display:flex; gap:1.5rem; align-items:flex-start;">
-                    <div style="flex:1;">
-                        <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
-                        <div style="margin-top:1rem; width:35%; height:4px; background:#111120;">
-                            <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
-                        </div>
-                    </div>
-                    <div style="width:1px; background:#222240; align-self:stretch;"></div>
-                    <div style="flex:1;">
-                        <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Entropy</div>
-                        <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{entropy_bits:.1f}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> bits</span></div>
-                        <div style="margin-top:1rem; font-size:0.62rem; color:#7878A0; font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;">~{_format_guesses(guesses)}</div>
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.5rem 1.5rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:flex-start;">
+                <div style="flex:2; min-width:0;">
+                    <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
+                    <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
+                    <div style="margin-top:1rem; width:35%; height:4px; background:#111120;">
+                        <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
                     </div>
                 </div>
-            </div>
-            <div style="background:#0D0D1A; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center;">
-                <div style="font-size:0.56rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
-                <div id="pv-rating" data-rating="{html.escape(rating)}" style="color:{color}; font-size:1.1rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.9rem; box-shadow:{shadow};"></div>
+                <div style="width:1px; background:#222240; align-self:stretch; margin:0 1rem;"></div>
+                <div style="flex:2; min-width:0;">
+                    <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Entropy</div>
+                    <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{entropy_bits:.1f}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> bits</span></div>
+                    <div style="margin-top:1rem; font-size:0.62rem; color:#7878A0; font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;">~{_format_guesses(guesses)}</div>
+                </div>
+                <div style="width:1px; background:#222240; align-self:stretch; margin:0 1rem;"></div>
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                    <div style="font-size:0.56rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
+                    <div id="pv-rating" data-rating="{html.escape(rating)}" style="color:{color}; font-size:0.9rem; font-weight:800; letter-spacing:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.6rem; box-shadow:{shadow}; white-space:nowrap;"></div>
+                </div>
             </div>
         </div>
         """),
