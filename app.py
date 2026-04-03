@@ -564,7 +564,8 @@ def render_generator_panel():
             st.session_state.pop("pw_gen_error", None)
             st.session_state["generated_password"] = generated
 
-    with st.expander("Generate a strong password", expanded=st.session_state.pop("pw_gen_open", False)):
+    _pw_expand = {"expanded": True} if st.session_state.pop("pw_gen_open", False) else {}
+    with st.expander("Generate a strong password", **_pw_expand):
         st.slider("Length", min_value=MIN_LENGTH, max_value=MAX_LENGTH, value=20, key="gen_length")
         gc1, gc2, gc3, gc4 = st.columns(4)
         with gc1:
@@ -602,7 +603,8 @@ def render_passphrase_panel():
             st.session_state.pop("pp_gen_error", None)
             st.session_state["generated_passphrase"] = passphrase
 
-    with st.expander("Generate a strong passphrase", expanded=st.session_state.pop("pp_gen_open", False)):
+    _pp_expand = {"expanded": True} if st.session_state.pop("pp_gen_open", False) else {}
+    with st.expander("Generate a strong passphrase", **_pp_expand):
         st.slider("Word count", min_value=3, max_value=8, value=4, key="pp_word_count")
         st.selectbox("Separator", list(_SEPARATORS.keys()), index=0, key="pp_separator")
         pc1, pc2, pc3, pc4 = st.columns(4)
@@ -865,6 +867,9 @@ def render_validation_results(password, blacklist):
             unsafe_allow_html=True,
         )
 
+    st.session_state["validation_done"] = True
+    st.session_state["last_validated_password"] = password
+
     # ── Animations ─────────────────────────────────────────────────────────
     components.html(
         f"""
@@ -928,11 +933,15 @@ with st.spinner("Initializing security database..."):
 
 render_header()
 
+def _on_password_change():
+    st.session_state.pop("validation_done", None)
+
 password = st.text_input(
     f"Enter password to analyze (max {MAX_LENGTH} characters)",
     type="password",
     max_chars=MAX_LENGTH,
     key="password_input",
+    on_change=_on_password_change,
 )
 
 st.markdown(
@@ -956,4 +965,7 @@ render_safety_tips_panel()
 render_scoring_panel()
 
 if validate_clicked:
+    render_validation_results(password, blacklist)
+elif st.session_state.get("validation_done") and \
+        st.session_state.get("last_validated_password") == password:
     render_validation_results(password, blacklist)
