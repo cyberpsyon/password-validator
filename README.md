@@ -4,6 +4,10 @@ A password strength validator and security education tool. Scores passwords agai
 
 Available as both a CLI tool and a Streamlit web UI at [pw-validator.streamlit.app](https://pw-validator.streamlit.app).
 
+<p align="center">
+  <img src="screenshots/result.png" alt="Password analysis result showing score, entropy, rating, threat gauge, and rule breakdown" width="420">
+</p>
+
 ## Features
 
 - **7-rule scoring system** (100 points max): length, uppercase, lowercase, numbers, special characters, breach database check, and crack-time resistance
@@ -19,6 +23,13 @@ Available as both a CLI tool and a Streamlit web UI at [pw-validator.streamlit.a
 - **Passphrase generator**: random passphrases from the [EFF diceware wordlist](https://www.eff.org/dice) (7,776 words) with options for uppercase, leetspeak, digits, special characters, and configurable word count/separator
 - **Safety Tips**: expandable panel with password hygiene advice aligned with NIST, including links to [1Password](https://1password.com/) and [YubiKey](https://www.yubico.com/get-yubikey)
 - **How Scoring Works**: expandable panel explaining the full scoring system including entropy, bits, and guesses in plain English
+
+<table>
+  <tr>
+    <td><img src="screenshots/policy.png" alt="Attack method breakdown and Old-School vs NIST policy comparison"></td>
+    <td><img src="screenshots/generator.png" alt="Passphrase generator with word count, separator, and options"></td>
+  </tr>
+</table>
 
 ## Setup
 
