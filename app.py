@@ -1082,7 +1082,7 @@ def render_validation_results(password):
                 <div style="display:flex; gap:1.5rem; align-items:flex-start;">
                     <div style="flex:1;">
                         <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
-                        <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:1rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
+                        <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
                         <div style="margin-top:1rem; width:35%; height:4px; background:#111120;">
                             <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
                         </div>
@@ -1090,7 +1090,7 @@ def render_validation_results(password):
                     <div style="width:1px; background:#222240; align-self:stretch;"></div>
                     <div style="flex:1;">
                         <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Entropy</div>
-                        <div style="font-size:3rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{entropy_bits:.1f}<span style="font-size:1rem; color:#7878A0; font-weight:400;"> bits</span></div>
+                        <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{entropy_bits:.1f}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> bits</span></div>
                         <div style="margin-top:1rem; font-size:0.62rem; color:#7878A0; font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;">~{_format_guesses(guesses)}</div>
                     </div>
                 </div>
