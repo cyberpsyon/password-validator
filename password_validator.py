@@ -173,7 +173,7 @@ def _check_breach_databases(password, blacklist=None, **_kwargs):
         fail_msgs.append("\u26a0 Local blacklist unavailable: cannot verify against local password list")
         blacklist_clean = False
     elif password.lower() in blacklist:
-        fail_msgs.append("\u2717 Found in local password database (CRITICAL)")
+        fail_msgs.append("\u2717 Found in the rockyou.txt wordlist used by attackers (CRITICAL)")
         blacklist_clean = False
 
     # 6b: Have I Been Pwned
@@ -292,9 +292,9 @@ def full_validate(password, blacklist):
     else:
         failed.append("\u2717 Crack time resistance: cracks in under 1 second (0/50 points)")
 
-    # Auto-WEAK: crackable in under 1 hour OR found in HIBP breach database
-    hibp_breach = any("have i been pwned" in r.lower() for r in failed)
-    if hibp_breach:
+    # Auto-WEAK: crackable in under 1 hour OR found in HIBP or rockyou.txt
+    breach = any("have i been pwned" in r.lower() or "rockyou" in r.lower() for r in failed)
+    if breach:
         hard_fail = True
     rating = "WEAK" if hard_fail else get_rating(score)
 
