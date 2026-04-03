@@ -104,25 +104,25 @@ def _check_length(password, **_kwargs):
 def _check_uppercase(password, **_kwargs):
     if any(c.isupper() for c in password):
         return 5, "\u2713 Contains uppercase letters", None
-    return 0, None, "\u2717 No uppercase letters"
+    return 0, None, "\u25cb No uppercase letters"
 
 
 def _check_lowercase(password, **_kwargs):
     if any(c.islower() for c in password):
         return 5, "\u2713 Contains lowercase letters", None
-    return 0, None, "\u2717 No lowercase letters"
+    return 0, None, "\u25cb No lowercase letters"
 
 
 def _check_digits(password, **_kwargs):
     if any(c.isdigit() for c in password):
         return 5, "\u2713 Contains numbers", None
-    return 0, None, "\u2717 No numbers"
+    return 0, None, "\u25cb No numbers"
 
 
 def _check_special(password, **_kwargs):
     if any(c in SPECIAL_CHARS for c in password):
         return 5, "\u2713 Contains special characters", None
-    return 0, None, f"\u2717 No special characters ({SPECIAL_CHARS})"
+    return 0, None, f"\u25cb No special characters ({SPECIAL_CHARS})"
 
 
 def _check_breach_databases(password, **_kwargs):

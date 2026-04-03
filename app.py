@@ -1086,10 +1086,14 @@ def render_validation_results(password):
             f'</div>'
         )
     for rule in failed:
-        row_class = "pv-row-warn" if rule.startswith("\u26a0") else "pv-row-fail"
-        if row_class == "pv-row-warn":
+        if rule.startswith("\u26a0"):
+            row_class = "pv-row-warn"
             badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[WARN ]</span>'
+        elif rule.startswith("\u25cb"):
+            row_class = "pv-row-opt"
+            badge = '<span style="color:#7878A0; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[OPT ]</span>'
         else:
+            row_class = "pv-row-fail"
             badge = '<span style="color:#FF1744; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[FAIL]</span>'
         rows_html += (
             f'<div class="{row_class}" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
