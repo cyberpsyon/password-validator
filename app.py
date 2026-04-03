@@ -678,7 +678,7 @@ def render_safety_tips_panel():
                 st.markdown(body)
         st.markdown(
             '<p style="color:#46466A; font-size:0.65rem; margin-top:0.75rem; letter-spacing:0.04em;">'
-            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:#46466A;'>NIST SP 800-63B Rev. 4</a> (finalized August 2025).</p>",
+            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:#46466A;'>NIST SP 800-63B Rev. 4</a>.</p>",
             unsafe_allow_html=True,
         )
 
