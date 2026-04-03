@@ -1100,12 +1100,11 @@ def render_validation_results(password):
     fail_count = len(failed) - opt_count
 
     rows_html = ""
+    badge_style = "display:inline-block; min-width:2.8rem; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;"
     for rule in passed:
         rows_html += (
             f'<div class="pv-row-pass" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
-            f'<span style="color:#00E676; font-size:0.62rem; font-weight:700; '
-            f'letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; '
-            f'padding-top:2px;">[OK]</span>'
+            f'<span style="color:#00E676; {badge_style}">[OK]</span>'
             f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
@@ -1113,13 +1112,13 @@ def render_validation_results(password):
     for rule in failed:
         if rule.startswith("\u26a0"):
             row_class = "pv-row-warn"
-            badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[WARN]</span>'
+            badge = f'<span style="color:#F5A623; {badge_style}">[WARN]</span>'
         elif rule.startswith("\u25cb"):
             row_class = "pv-row-opt"
-            badge = '<span style="color:#7878A0; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[OPT]</span>'
+            badge = f'<span style="color:#7878A0; {badge_style}">[OPT]</span>'
         else:
             row_class = "pv-row-fail"
-            badge = '<span style="color:#FF1744; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[FAIL]</span>'
+            badge = f'<span style="color:#FF1744; {badge_style}">[FAIL]</span>'
         rows_html += (
             f'<div class="{row_class}" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
             f'{badge}'
