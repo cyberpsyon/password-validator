@@ -751,6 +751,125 @@ def render_scoring_panel():
 # Validation results
 # ---------------------------------------------------------------------------
 
+def _compute_policy_compliance(password, result):
+    """Compute old-school corporate and NIST SP 800-63B compliance booleans."""
+    return {
+        "cs_length":     len(password) >= 8,
+        "cs_complexity": (any(c.isupper() for c in password)
+                         and any(c.islower() for c in password)
+                         and any(c.isdigit() for c in password)
+                         and any(c in SPECIAL_CHARS for c in password)),
+        "nist_length":   len(password) >= MIN_LENGTH,
+        "nist_breach":   not any("have i been pwned" in r.lower() for r in result["failed"]),
+    }
+
+
+def render_policy_compliance(password, result, compliance):
+    """Render the policy compliance panel (Deep Analysis section)."""
+
+    def _cell(passed, pass_label, fail_label, na=False):
+        if na:
+            return (
+                f'<div style="text-align:center;">'
+                f'<span style="color:#7878A0; font-size:0.62rem; font-weight:700; '
+                f'font-family:JetBrains Mono,monospace;">[ N/A ]</span>'
+                f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+                f'font-family:JetBrains Mono,monospace;">{html.escape(pass_label)}</div>'
+                f'</div>'
+            )
+        color = "#00E676" if passed else "#FF1744"
+        badge = "[ PASS ]" if passed else "[ FAIL ]"
+        label = pass_label if passed else fail_label
+        return (
+            f'<div style="text-align:center;">'
+            f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
+            f'font-family:JetBrains Mono,monospace;">{badge}</span>'
+            f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+            f'font-family:JetBrains Mono,monospace;">{html.escape(label)}</div>'
+            f'</div>'
+        )
+
+    def _row(criterion, old_cell, nist_cell):
+        return (
+            f'<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
+            f'padding:0.5rem 0; border-bottom:1px solid #111120; align-items:center;">'
+            f'<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            f'{html.escape(criterion)}</div>'
+            f'{old_cell}{nist_cell}'
+            f'</div>'
+        )
+
+    pw_len = len(password)
+    header = (
+        '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">'
+        '<div></div>'
+        '<div style="font-size:0.52rem; color:#7878A0; letter-spacing:0.1em; text-transform:uppercase; '
+        'text-align:center; font-family:JetBrains Mono,monospace;">Old-School Corporate</div>'
+        '<div style="font-size:0.52rem; color:#F5A623; letter-spacing:0.1em; text-transform:uppercase; '
+        'text-align:center; font-family:JetBrains Mono,monospace;">NIST SP 800-63B</div>'
+        '</div>'
+    )
+
+    rows_html = (
+        header
+        + _row("Minimum length",
+               _cell(compliance["cs_length"],
+                     f"requires 8+, has {pw_len}",
+                     f"requires 8+, has {pw_len}"),
+               _cell(compliance["nist_length"],
+                     f"recommends 15+, has {pw_len}",
+                     f"recommends 15+, has {pw_len}"))
+        + _row("Character complexity",
+               _cell(compliance["cs_complexity"],
+                     "upper, lower, digit, special",
+                     "requires upper, lower, digit, special"),
+               _cell(True, "not required", "not required"))
+        + _row("Breach database check",
+               _cell(False, "not performed", "not performed", na=True),
+               _cell(compliance["nist_breach"],
+                     "not found in HIBP",
+                     "found in HIBP"))
+        + (
+            '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
+            'padding:0.5rem 0; align-items:center;">'
+            '<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            'Forced rotation</div>'
+            + _cell(False, "typically every 90 days", "typically every 90 days", na=True)
+            + _cell(True, "not recommended", "not recommended")
+            + '</div>'
+        )
+    )
+
+    cs_pass   = compliance["cs_length"] and compliance["cs_complexity"]
+    nist_pass = compliance["nist_length"] and compliance["nist_breach"]
+
+    if cs_pass and nist_pass:
+        summary = "This password meets both standards."
+        summary_color = "#00E676"
+    elif nist_pass and not cs_pass:
+        summary = ("This password would be rejected by a typical corporate policy but is fully "
+                   "compliant with NIST SP 800-63B, and significantly harder to crack.")
+        summary_color = "#F5A623"
+    elif cs_pass and not nist_pass:
+        summary = ("This password meets old-school corporate requirements but does not meet "
+                   "current NIST guidance.")
+        summary_color = "#FF6D00"
+    else:
+        summary = "This password fails both standards."
+        summary_color = "#FF1744"
+
+    st.markdown(
+        _html(f"""
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">Policy Compliance</div>
+            {rows_html}
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+
 def render_attack_breakdown(result):
     """Render the attack method breakdown panel (Deep Analysis section)."""
     sequence = result.get("attack_sequence", [])
@@ -959,7 +1078,9 @@ def render_validation_results(password):
         unsafe_allow_html=True,
     )
 
+    compliance = _compute_policy_compliance(password, result)
     render_attack_breakdown(result)
+    render_policy_compliance(password, result, compliance)
 
     st.session_state["validation_done"] = True
     st.session_state["last_validated_password"] = password
