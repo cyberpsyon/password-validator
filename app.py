@@ -959,3 +959,18 @@ if validate_clicked:
 elif st.session_state.get("validation_done") and \
         st.session_state.get("last_validated_password") == password:
     render_validation_results(password)
+
+st.markdown(
+    '<div style="margin-top:3rem; padding-top:1.25rem; border-top:1px solid #181830; '
+    'text-align:center;">'
+    '<a href="https://github.com/cyberpsyon/password-validator" target="_blank" '
+    'style="color:#46466A; font-size:0.62rem; letter-spacing:0.14em; '
+    'text-decoration:none; text-transform:uppercase; '
+    'transition:color 0.2s;" '
+    'onmouseover="this.style.color=\'#F5A623\'" '
+    'onmouseout="this.style.color=\'#46466A\'">'
+    '[ source: github ]'
+    '</a>'
+    '</div>',
+    unsafe_allow_html=True,
+)
