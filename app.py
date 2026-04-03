@@ -859,37 +859,48 @@ def render_validation_results(password, blacklist):
     components.html(
         f"""
         <script>
-        setTimeout(function() {{
-            var scoreEl  = window.parent.document.getElementById('pv-score');
-            var barEl    = window.parent.document.getElementById('pv-bar');
-            var ratingEl = window.parent.document.getElementById('pv-rating');
-            if (!scoreEl || !barEl || !ratingEl) return;
+        (function() {{
+            var attempts = 0;
+            var poll = setInterval(function() {{
+                var scoreEl  = window.parent.document.getElementById('pv-score');
+                var barEl    = window.parent.document.getElementById('pv-bar');
+                var ratingEl = window.parent.document.getElementById('pv-rating');
+                if (scoreEl && barEl && ratingEl) {{
+                    clearInterval(poll);
+                    runAnimations(scoreEl, barEl, ratingEl);
+                }} else if (++attempts > 40) {{
+                    clearInterval(poll);
+                }}
+            }}, 50);
 
-            var targetScore = parseInt(scoreEl.dataset.target);
-            var targetWidth = parseFloat(barEl.dataset.targetWidth);
-            var ratingText  = ratingEl.dataset.rating;
-            var duration    = 800;
-            var start       = performance.now();
+            function runAnimations(scoreEl, barEl, ratingEl) {{
+                var targetScore = parseInt(scoreEl.dataset.target);
+                var targetWidth = parseFloat(barEl.dataset.targetWidth);
+                var ratingText  = ratingEl.dataset.rating;
+                var duration    = 800;
+                var start       = performance.now();
 
-            function easeOut(t) {{ return 1 - Math.pow(1 - t, 3); }}
+                function easeOut(t) {{ return 1 - Math.pow(1 - t, 3); }}
 
-            function tick(now) {{
-                var t = Math.min((now - start) / duration, 1);
-                var eased = easeOut(t);
-                scoreEl.textContent = Math.round(eased * targetScore);
-                barEl.style.width = (eased * targetWidth) + '%';
-                if (t < 1) requestAnimationFrame(tick);
+                function tick(now) {{
+                    var t = Math.min((now - start) / duration, 1);
+                    var eased = easeOut(t);
+                    scoreEl.textContent = Math.round(eased * targetScore);
+                    barEl.style.width = (eased * targetWidth) + '%';
+                    if (t < 1) requestAnimationFrame(tick);
+                }}
+                requestAnimationFrame(tick);
+
+                ratingEl.textContent = '';
+                var i = 0;
+                setTimeout(function() {{
+                    var interval = setInterval(function() {{
+                        ratingEl.textContent += ratingText[i++];
+                        if (i >= ratingText.length) clearInterval(interval);
+                    }}, 80);
+                }}, 100);
             }}
-            requestAnimationFrame(tick);
-
-            var i = 0;
-            setTimeout(function() {{
-                var interval = setInterval(function() {{
-                    ratingEl.textContent += ratingText[i++];
-                    if (i >= ratingText.length) clearInterval(interval);
-                }}, 80);
-            }}, 100);
-        }}, 50);
+        }})();
         </script>
         """,
         height=0,
