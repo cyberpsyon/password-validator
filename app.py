@@ -823,9 +823,12 @@ password = st.text_input(
 )
 
 st.markdown(
-    '<p style="text-align:right; font-size:0.6rem; color:#7878A0; '
-    'margin:-0.5rem 0 0.75rem 0; letter-spacing:0.1em;">'
-    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD</p>',
+    '<p style="text-align:left; font-size:0.6rem; color:#7878A0; '
+    'margin:-0.5rem 0 0 0; letter-spacing:0.1em;">'
+    '&#128274; YOUR PASSWORD IS NEVER SENT TO OUR SERVERS OR STORED.</p>'
+    '<p style="text-align:left; font-size:0.6rem; color:#7878A0; '
+    'margin:0 0 0.75rem 0; letter-spacing:0.1em;">'
+    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</p>',
     unsafe_allow_html=True,
 )
 
