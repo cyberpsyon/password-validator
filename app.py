@@ -1300,14 +1300,10 @@ password = st.text_input(
 )
 
 st.markdown(
-    '<div style="position:relative; height:1rem; '
-    'margin:-0.5rem 0 0.75rem 0;">'
-    '<span class="pv-left" style="position:absolute; width:100%; left:0; '
-    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:left;">'
-    '&#128274; YOUR PASSWORD IS NEVER SENT TO ANY SERVER OR STORED.</span>'
-    '<span class="pv-right" style="position:absolute; width:100%; left:0; '
-    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:right;">'
-    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</span>'
+    '<div style="text-align:right; margin:-0.5rem 0 0.75rem 0; '
+    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; line-height:1.8;">'
+    '&#128274; YOUR PASSWORD IS NEVER SENT TO ANY SERVER OR STORED.<br>'
+    '&#9888; CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.'
     '</div>',
     unsafe_allow_html=True,
 )
