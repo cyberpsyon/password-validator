@@ -450,6 +450,12 @@ def inject_global_styles():
             padding-left: 0.6rem;
             margin-left: -0.6rem;
         }
+        .pv-row-opt {
+            background: rgba(120, 120, 160, 0.06);
+            border-left: 2px solid var(--text-dim);
+            padding-left: 0.6rem;
+            margin-left: -0.6rem;
+        }
 
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 5px; }
@@ -1073,6 +1079,8 @@ def render_validation_results(password):
     # ── Rule analysis ──────────────────────────────────────────────────────
     passed = result["passed"]
     failed = result["failed"]
+    opt_count  = sum(1 for r in failed if r.startswith("\u25cb"))
+    fail_count = len(failed) - opt_count
 
     rows_html = ""
     for rule in passed:
@@ -1080,7 +1088,7 @@ def render_validation_results(password):
             f'<div class="pv-row-pass" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
             f'<span style="color:#00E676; font-size:0.62rem; font-weight:700; '
             f'letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; '
-            f'padding-top:2px;">[ OK ]</span>'
+            f'padding-top:2px;">[OK]</span>'
             f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
@@ -1126,7 +1134,8 @@ def render_validation_results(password):
                 <span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
                 <div style="display:flex; gap:1.25rem;">
                     <span style="font-size:0.6rem; color:#00E676; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2713; {len(passed)} passed</span>
-                    <span style="font-size:0.6rem; color:#FF1744; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {len(failed)} failed</span>
+                    <span style="font-size:0.6rem; color:#FF1744; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {fail_count} failed</span>
+                    <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x25cb; {opt_count} optional</span>
                 </div>
             </div>
             {rows_html}
