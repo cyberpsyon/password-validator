@@ -789,7 +789,7 @@ def render_validation_results(password, blacklist):
     for rule in failed:
         row_class = "pv-row-warn" if rule.startswith("\u26a0") else "pv-row-fail"
         if row_class == "pv-row-warn":
-            badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[ WARN]</span>'
+            badge = '<span style="color:#F5A623; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[WARN ]</span>'
         else:
             badge = '<span style="color:#FF1744; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;">[FAIL]</span>'
         rows_html += (
