@@ -1,6 +1,6 @@
 # Password Validator
 
-A password strength validator that scores passwords against security policies, a common password blacklist (rockyou.txt), the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) breach database, and crack-time estimation via [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python).
+A password strength validator that scores passwords against security policies, the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) breach database, and crack-time estimation via [zxcvbn](https://github.com/dwolfhuis/zxcvbn-python).
 
 Available as both a CLI tool and a Streamlit web UI.
 
@@ -8,7 +8,7 @@ Available as both a CLI tool and a Streamlit web UI.
 
 - **7-rule scoring system** (100 points max): length, uppercase, lowercase, numbers, special characters, breach database check, and crack-time resistance
 - **Crack-time estimation** using zxcvbn's offline slow-hashing model (bcrypt at 10K guesses/sec), aligned with the [Hive Systems 2025 methodology](https://www.hivesystems.com/blog/are-your-passwords-in-the-green)
-- **Breach database checking** against 14M+ passwords from rockyou.txt and the HIBP Pwned Passwords API (uses k-anonymity so your password never leaves the machine)
+- **Breach database checking** via the [Have I Been Pwned](https://haveibeenpwned.com/Passwords) Pwned Passwords API — 900M+ compromised passwords checked using k-anonymity (your password never leaves your device)
 - **Streamlit web UI** with color-coded score, rating badges, threat gauge, and built-in generators
 - **Password generator**: cryptographically secure random passwords with configurable length and character sets
 - **Passphrase generator**: random passphrases from the [EFF diceware wordlist](https://www.eff.org/dice) (7,776 words) with options for uppercase, leetspeak, digits, special characters, and configurable word count/separator
@@ -20,8 +20,6 @@ Available as both a CLI tool and a Streamlit web UI.
 ```bash
 pip install zxcvbn requests streamlit
 ```
-
-Place a wordlist file (e.g. `rockyou.txt`) in the project directory, or set the `PV_BLACKLIST_FILE` environment variable to point to your wordlist.
 
 ## Usage
 
@@ -46,7 +44,7 @@ Passwords are scored out of 100 points across 7 categories. Crack-time resistanc
 | Contains lowercase letters | 5 |
 | Contains numbers | 5 |
 | Contains special characters | 5 |
-| Not in breach databases (rockyou.txt + HIBP) | 20 |
+| Not found in breach databases | 20 |
 | Crack-time resistance | 0–50 |
 
 ### Crack-Time Resistance
@@ -73,7 +71,7 @@ Points are awarded based on how long it would take to crack the password assumin
 | FAIR | 40-55 |
 | WEAK | Below 40 |
 
-Any password that can be cracked in under 1 hour or is found in either breach database (rockyou.txt or [Have I Been Pwned](https://haveibeenpwned.com/Passwords)) is automatically rated **WEAK** regardless of its total score.
+Any password that can be cracked in under 1 hour or is found in [Have I Been Pwned](https://haveibeenpwned.com/Passwords) is automatically rated **WEAK** regardless of its total score.
 
 ## Standards
 

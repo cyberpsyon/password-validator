@@ -1,6 +1,6 @@
 # Author: Ben Mickens
 # Date: 12-07-2024
-# Purpose: Validates password strength against security policies and common password blacklist
+# Purpose: Validates password strength against security policies and breach databases
 
 import hashlib
 import logging
@@ -52,44 +52,6 @@ def _configure_logging():
         handlers=[handler, logging.StreamHandler()],
     )
     os.chmod(log_path, 0o600)
-
-
-def _validated_blacklist_path(path):
-    """Resolve and validate the blacklist file path."""
-    resolved = os.path.realpath(path)
-    if not os.path.isfile(resolved):
-        _logger.warning(f"Blacklist file not found: {resolved}")
-        return resolved  # Still return; load_blacklist handles missing gracefully
-    return resolved
-
-
-BLACKLIST_FILE = _validated_blacklist_path(
-    os.environ.get(
-        "PV_BLACKLIST_FILE",
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "rockyou.txt"),
-    )
-)
-
-
-# ---------------------------------------------------------------------------
-# Data loading
-# ---------------------------------------------------------------------------
-
-def load_blacklist():
-    try:
-        with open(BLACKLIST_FILE, 'r', encoding='utf-8', errors='ignore') as file:
-            blacklist = {line.strip().lower() for line in file if line.strip()}
-        _logger.info(f"Loaded {len(blacklist)} passwords from blacklist")
-        return blacklist
-    except FileNotFoundError:
-        _logger.error(f"Blacklist file not found: {BLACKLIST_FILE}")
-        return set()
-    except PermissionError:
-        _logger.error(f"Permission denied reading blacklist: {BLACKLIST_FILE}")
-        return set()
-    except Exception as e:
-        _logger.error(f"Unexpected error loading blacklist: {e!r}")
-        return set()
 
 
 # ---------------------------------------------------------------------------
@@ -162,34 +124,14 @@ def _check_special(password, **_kwargs):
     return 0, None, f"\u2717 No special characters ({SPECIAL_CHARS})"
 
 
-def _check_breach_databases(password, blacklist=None, **_kwargs):
-    """Rule 6: Combined local blacklist + HIBP check (20 points)."""
-    fail_msgs = []
-    blacklist_clean = True
-    hibp_clean = True
-
-    # 6a: Local blacklist
-    if not blacklist:
-        fail_msgs.append("\u26a0 Local blacklist unavailable: cannot verify against local password list")
-        blacklist_clean = False
-    elif password.lower() in blacklist:
-        fail_msgs.append("\u2717 Found in the rockyou.txt wordlist used by attackers (CRITICAL)")
-        blacklist_clean = False
-
-    # 6b: Have I Been Pwned
+def _check_breach_databases(password, **_kwargs):
+    """Rule 6: HIBP breach check (20 points)."""
     hibp_found, hibp_count, hibp_error = check_hibp(password)
     if hibp_error:
-        fail_msgs.append("\u26a0 HIBP API unavailable: cannot verify against breach database")
-        hibp_clean = False
-    elif hibp_found:
-        fail_msgs.append(f"\u2717 Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)")
-        hibp_clean = False
-
-    if blacklist_clean and hibp_clean:
-        return 20, "\u2713 Not in common password databases", None
-
-    # Return all failure messages joined; caller will split if needed
-    return 0, None, fail_msgs
+        return 0, None, ["\u26a0 HIBP API unavailable: cannot verify against breach database"]
+    if hibp_found:
+        return 0, None, [f"\u2717 Found in Have I Been Pwned database ({hibp_count:,} breaches) (CRITICAL)"]
+    return 20, "\u2713 Not found in breach databases", None
 
 
 _RULES = [
@@ -206,7 +148,7 @@ _RULES = [
 # Core validation
 # ---------------------------------------------------------------------------
 
-def validate_password(password, blacklist):
+def validate_password(password):
     """Run all rule checks. Returns (score, max_score, failed_rules, passed_rules)."""
     if not password:
         _logger.warning("Validation failed: Empty password provided")
@@ -223,12 +165,11 @@ def validate_password(password, blacklist):
     score, passed, failed = 0, [], []
 
     for rule in _RULES:
-        pts, ok_msg, fail_msg = rule(password, blacklist=blacklist)
+        pts, ok_msg, fail_msg = rule(password)
         score += pts
         if ok_msg:
             passed.append(ok_msg)
         if fail_msg:
-            # _check_breach_databases may return a list of failure messages
             if isinstance(fail_msg, list):
                 failed.extend(fail_msg)
             else:
@@ -277,13 +218,13 @@ def get_rating(score):
 # Full validation orchestrator (shared by CLI and Streamlit)
 # ---------------------------------------------------------------------------
 
-def full_validate(password, blacklist):
+def full_validate(password):
     """Run all checks and return a results dict.
 
     Combines validate_password() + analyze_crack_time() + get_rating()
     so both CLI and Streamlit call a single function.
     """
-    score, max_score, failed, passed = validate_password(password, blacklist)
+    score, max_score, failed, passed = validate_password(password)
     crack_time, crack_seconds, crack_pts, hard_fail, suggestions, warning = analyze_crack_time(password)
     score += crack_pts
 
@@ -292,8 +233,8 @@ def full_validate(password, blacklist):
     else:
         failed.append("\u2717 Crack time resistance: cracks in under 1 second (0/50 points)")
 
-    # Auto-WEAK: crackable in under 1 hour OR found in HIBP or rockyou.txt
-    breach = any("have i been pwned" in r.lower() or "rockyou" in r.lower() for r in failed)
+    # Auto-WEAK: crackable in under 1 hour OR found in HIBP
+    breach = any("have i been pwned" in r.lower() for r in failed)
     if breach:
         hard_fail = True
     rating = "WEAK" if hard_fail else get_rating(score)
@@ -437,7 +378,7 @@ def _print_recommendations(result):
         recs.append("This password is too weak for secure systems")
     if result["failed"]:
         recs.append("Address all failed rules above")
-    if any("common password" in r or "Have I Been Pwned" in r for r in result["failed"]):
+    if any("have i been pwned" in r.lower() for r in result["failed"]):
         recs.append("CRITICAL: Use a unique password not found in breach databases")
     if result["warning"]:
         recs.append(result["warning"])
@@ -464,13 +405,6 @@ def main():
 
     _logger.info("Password validator started")
 
-    blacklist = load_blacklist()
-
-    if not blacklist:
-        print("\u26a0 WARNING: Could not load password blacklist.")
-        print(f"  Expected file: {BLACKLIST_FILE}")
-        print("  Continuing without blacklist checking...\n")
-
     while True:
         password = input("Enter password to validate (or 'quit' to exit): ")
 
@@ -479,7 +413,7 @@ def main():
             print("\nThank you for using Password Validator!")
             break
 
-        result = full_validate(password, blacklist)
+        result = full_validate(password)
         _print_results(result)
         _print_recommendations(result)
 

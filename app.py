@@ -6,7 +6,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from password_validator import (
-    load_blacklist,
     full_validate,
     generate_password,
     generate_passphrase,
@@ -109,10 +108,6 @@ _SAFETY_TIPS = [
      "no longer recommended."),
 ]
 
-
-@st.cache_resource
-def get_blacklist():
-    return load_blacklist()
 
 
 # ---------------------------------------------------------------------------
@@ -667,21 +662,20 @@ def render_scoring_panel():
             "| Contains lowercase letters | 5 |\n"
             "| Contains numbers | 5 |\n"
             "| Contains special characters | 5 |\n"
-            "| Not in breach databases | 20 |\n"
+            "| Not found in breach databases | 20 |\n"
             "| Crack-time resistance | 0\u201350 |"
         )
 
         st.markdown("#### Breach Database Checks")
         st.markdown(
-            "Your password is checked against two independent sources:\n\n"
-            "- **rockyou.txt** — A wordlist of 14 million real passwords leaked in the [2009 RockYou breach](https://en.wikipedia.org/wiki/RockYou). "
-            "It is one of the first files attackers load into cracking tools. "
-            "If your password is on this list, it will be tried within seconds of any attack.\n\n"
-            "- **[Have I Been Pwned](https://haveibeenpwned.com)** — A database of over 900 million passwords "
-            "collected from hundreds of real-world data breaches. If your password appears here, it means "
-            "someone, somewhere, has already used it — and attackers have it too. "
+            "Your password is checked against **[Have I Been Pwned](https://haveibeenpwned.com)** — "
+            "a database of over 900 million passwords collected from hundreds of real-world data breaches. "
+            "If your password appears here, it means someone, somewhere, has already used it — and attackers have it too. "
             "Your password is checked privately using k-anonymity: only the first 5 characters of its hash "
-            "are ever transmitted, so your actual password never leaves your device."
+            "are ever transmitted, so your actual password never leaves your device.\n\n"
+            "Attackers commonly use wordlists like [rockyou.txt](https://en.wikipedia.org/wiki/RockYou) — "
+            "a list of 14 million real passwords leaked in the 2009 RockYou breach — as their first line of attack. "
+            "Have I Been Pwned contains rockyou.txt and far more, making it the definitive check."
         )
 
         st.markdown("#### Crack-Time Resistance")
@@ -714,7 +708,7 @@ def render_scoring_panel():
             "| WEAK | Below 40 |"
         )
         st.markdown(
-            "Any password that can be cracked in **under 1 hour** or is found in either breach database "
+            "Any password that can be cracked in **under 1 hour** or is found in Have I Been Pwned "
             "is automatically rated **WEAK** regardless of its total score."
         )
 
@@ -723,7 +717,7 @@ def render_scoring_panel():
 # Validation results
 # ---------------------------------------------------------------------------
 
-def render_validation_results(password, blacklist):
+def render_validation_results(password):
     """Run validation and display results."""
     if not password:
         st.warning("Please enter a password first.")
@@ -737,7 +731,7 @@ def render_validation_results(password, blacklist):
             st.stop()
     st.session_state["last_validate_time"] = time.time()
 
-    result = full_validate(password, blacklist)
+    result = full_validate(password)
 
     score      = result["score"]
     max_score  = result["max_score"]
@@ -840,9 +834,8 @@ def render_validation_results(password, blacklist):
         recs.append("This password is too weak for secure systems.")
     if result["failed"]:
         recs.append("Address all failed rules listed above.")
-    if any("common password" in r.lower() or "have i been pwned" in r.lower()
-           for r in result["failed"]):
-        recs.append("**CRITICAL:** Use a unique password not found in breach databases.")
+    if any("have i been pwned" in r.lower() for r in result["failed"]):
+        recs.append("**CRITICAL:** Use a unique password not found in Have I Been Pwned.")
     if result["warning"]:
         recs.append(result["warning"])
     recs.extend(result["suggestions"])
@@ -928,9 +921,6 @@ def render_validation_results(password, blacklist):
 
 inject_global_styles()
 
-with st.spinner("Initializing security database..."):
-    blacklist = get_blacklist()
-
 render_header()
 
 def _on_password_change():
@@ -965,7 +955,7 @@ render_safety_tips_panel()
 render_scoring_panel()
 
 if validate_clicked:
-    render_validation_results(password, blacklist)
+    render_validation_results(password)
 elif st.session_state.get("validation_done") and \
         st.session_state.get("last_validated_password") == password:
-    render_validation_results(password, blacklist)
+    render_validation_results(password)
