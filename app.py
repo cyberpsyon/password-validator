@@ -80,7 +80,7 @@ _SAFETY_TIPS = [
      "Nobody can remember dozens of strong, unique passwords. A password "
      "manager is an app that securely stores all of your passwords for you. "
      "You only need to remember one master password, and the manager fills in "
-     "the rest. We recommend [1Password](https://1password.com/) — the industry-leading option for individuals and teams."),
+     "the rest. We recommend [1Password](https://1password.com/), the industry-leading option for individuals and teams."),
 
     ("Enable multi-factor authentication (MFA)",
      "Multi-factor authentication adds another step when you log in, like a "
@@ -737,20 +737,20 @@ def render_scoring_panel():
             "| 100+ years | 50 |"
         )
 
-        st.markdown("#### Entropy — What Are Bits and Guesses?")
+        st.markdown("#### Entropy: What Are Bits and Guesses?")
         st.markdown(
             "Alongside your score, you'll see an **entropy** value measured in **bits**. "
-            "Entropy is a way of measuring how unpredictable your password is — not how complex it looks, "
+            "Entropy is a way of measuring how unpredictable your password is, not how complex it looks, "
             "but how many attempts an attacker would need to guess it.\n\n"
             "**Bits** are the unit. Each additional bit doubles the number of guesses required. "
             "Think of it like this: 10 bits = ~1,000 guesses. 20 bits = ~1 million. 40 bits = ~1 trillion. "
             "Every bit you add makes the attacker's job exponentially harder, not just a little harder.\n\n"
-            "**Guesses** is the same number written in plain English — the raw count of attempts "
+            "**Guesses** is the same number written in plain English: the raw count of attempts "
             "a computer would have to make before it's likely to crack your password. "
             "A modern offline attack can test billions of guesses per second, so anything under "
             "a few trillion (~42 bits) is considered reachable with enough hardware and time.\n\n"
             "A long passphrase like `correct-horse-battery-staple` can reach 50+ bits of entropy "
-            "with no uppercase, numbers, or symbols — because its length and randomness create "
+            "with no uppercase, numbers, or symbols, because its length and randomness create "
             "a search space too large to brute-force. That's the core insight: **length beats complexity**."
         )
 
