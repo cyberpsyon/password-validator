@@ -89,7 +89,7 @@ _SAFETY_TIPS = [
      "without that second step. Turn on MFA everywhere it is available, "
      "especially for email, banking, and work accounts. Avoid SMS-based MFA "
      "when possible. Authenticator apps (like Authy or Google Authenticator) "
-     "and hardware security keys (like YubiKey) are significantly harder to "
+     "and hardware security keys (like [YubiKey](https://www.yubico.com/get-yubikey)) are significantly harder to "
      "intercept or bypass."),
 
     ("Longer passwords are stronger passwords",
