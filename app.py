@@ -1098,6 +1098,16 @@ def render_validation_results(password):
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
+        if "have i been pwned" in rule.lower() and result.get("hibp_count"):
+            count = result["hibp_count"]
+            rows_html += (
+                f'<div style="padding:0.3rem 0.6rem 0.5rem 2.5rem; font-size:0.67rem; '
+                f'color:#7878A0; line-height:1.6; font-family:JetBrains Mono,monospace;">'
+                f'Passwords in breach databases are loaded into automated credential stuffing tools '
+                f'and tried against millions of accounts. A count of {count:,} means this exact '
+                f'password has been seen that many times in real-world breaches.'
+                f'</div>'
+            )
 
     if not rows_html:
         rows_html = (
