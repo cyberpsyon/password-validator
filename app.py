@@ -433,7 +433,7 @@ def inject_global_styles():
         header    { visibility: hidden; }
 
         /* ── Footer ── */
-        .pv-footer a { color: #46466A !important; text-decoration: none !important; }
+        .pv-footer a { color: #7878A0 !important; text-decoration: none !important; }
         .pv-footer a:hover { color: #F5A623 !important; }
         </style>
         """,
@@ -967,8 +967,8 @@ elif st.session_state.get("validation_done") and \
 st.markdown(
     '<div class="pv-footer" style="margin-top:3rem; padding-top:1.25rem; '
     'border-top:1px solid #181830; text-align:center;">'
-    '<span style="color:#46466A; font-size:0.62rem; letter-spacing:0.14em;">BEN MICKENS</span>'
-    '<span style="color:#46466A; font-size:0.62rem; margin:0 0.75rem;">·</span>'
+    '<span style="color:#7878A0; font-size:0.62rem; letter-spacing:0.14em;">BUILT BY BEN MICKENS</span>'
+    '<span style="color:#7878A0; font-size:0.62rem; margin:0 0.75rem;">·</span>'
     '<a href="https://github.com/cyberpsyon/password-validator" target="_blank" '
     'style="font-size:0.62rem; letter-spacing:0.14em; transition:color 0.2s;">'
     '[ SOURCE: GITHUB ]'
