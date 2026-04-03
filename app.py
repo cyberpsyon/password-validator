@@ -687,10 +687,11 @@ def render_scoring_panel():
     """Render a generic scoring explanation inside an expander."""
     with st.expander("How Scoring Works"):
         st.markdown(
-            "Your password is scored out of **100 points** across 7 categories. "
+            "Your password is scored out of <span style='color:#F5A623;font-weight:700'>100 points</span> across 7 categories. "
             "Crack-time resistance carries the most weight because it directly measures "
             "real-world entropy. Character diversity rules are useful nudges, not a "
-            "substitute for genuine unpredictability."
+            "substitute for genuine unpredictability.",
+            unsafe_allow_html=True,
         )
 
         st.markdown("#### Point Breakdown")
@@ -738,35 +739,46 @@ def render_scoring_panel():
         )
 
         st.markdown("#### Entropy: What Are Bits and Guesses?")
-        st.markdown(
-            "Alongside your score, you'll see an **entropy** value measured in **bits**. "
-            "Entropy is a way of measuring how unpredictable your password is, not how complex it looks, "
-            "but how many attempts an attacker would need to guess it.\n\n"
-            "**Bits** are the unit. Each additional bit doubles the number of guesses required. "
-            "Think of it like this: 10 bits = ~1,000 guesses. 20 bits = ~1 million. 40 bits = ~1 trillion. "
-            "Every bit you add makes the attacker's job exponentially harder, not just a little harder.\n\n"
-            "**Guesses** is the same number written in plain English: the raw count of attempts "
-            "a computer would have to make before it's likely to crack your password. "
-            "A modern offline attack can test billions of guesses per second, so anything under "
-            "a few trillion (~42 bits) is considered reachable with enough hardware and time.\n\n"
-            "A long passphrase like `correct-horse-battery-staple` can reach 50+ bits of entropy "
-            "with no uppercase, numbers, or symbols, because its length and randomness create "
-            "a search space too large to brute-force. That's the core insight: **length beats complexity**."
-        )
+        st.markdown(_html("""
+            <p>Alongside your score, you'll see an
+            <span style='color:#F5A623;font-weight:700'>entropy</span> value measured in
+            <span style='color:#F5A623;font-weight:700'>bits</span>.
+            Entropy is a way of measuring how unpredictable your password is, not how complex it looks,
+            but how many attempts an attacker would need to guess it.</p>
+            <p><span style='color:#F5A623;font-weight:700'>Bits</span> are the unit. Each additional bit doubles the number of guesses required.
+            Think of it like this: 10 bits = ~1,000 guesses. 20 bits = ~1 million. 40 bits = ~1 trillion.
+            Every bit you add makes the attacker's job exponentially harder, not just a little harder.</p>
+            <p><span style='color:#F5A623;font-weight:700'>Guesses</span> is the same number written in plain English: the raw count of attempts
+            a computer would have to make before it's likely to crack your password.
+            A modern offline attack can test billions of guesses per second, so anything under
+            a few trillion (~42 bits) is considered reachable with enough hardware and time.</p>
+            <p>A long passphrase like
+            <code style='color:#00E676;background:rgba(0,230,118,0.08);padding:0.1rem 0.35rem'>correct-horse-battery-staple</code>
+            can reach 50+ bits of entropy with no uppercase, numbers, or symbols, because its length
+            and randomness create a search space too large to brute-force. That's the core insight:
+            <span style='color:#00E676;font-weight:700'>length beats complexity</span>.</p>
+        """), unsafe_allow_html=True)
 
         st.markdown("#### Final Rating")
+        st.markdown(_html("""
+            <table style='width:100%;border-collapse:collapse;font-size:0.82rem'>
+            <thead><tr>
+            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Rating</th>
+            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Score Range</th>
+            </tr></thead>
+            <tbody>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>EXCELLENT</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>100</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>STRONG</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>80&ndash;95</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FFD600;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FFD600;padding:0.1rem 0.45rem'>GOOD</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>60&ndash;75</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FF6D00;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF6D00;padding:0.1rem 0.45rem'>FAIR</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>40&ndash;55</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem'><span style='color:#FF1744;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF1744;padding:0.1rem 0.45rem'>WEAK</span></td><td style='padding:0.35rem 0.6rem;color:#CECEE0'>Below 40</td></tr>
+            </tbody></table>
+        """), unsafe_allow_html=True)
         st.markdown(
-            "| Rating | Score Range |\n"
-            "|--------|-------------|\n"
-            "| EXCELLENT | 100 |\n"
-            "| STRONG | 80\u201395 |\n"
-            "| GOOD | 60\u201375 |\n"
-            "| FAIR | 40\u201355 |\n"
-            "| WEAK | Below 40 |"
-        )
-        st.markdown(
-            "Any password that can be cracked in **under 1 hour** or is found in Have I Been Pwned "
-            "is automatically rated **WEAK** regardless of its total score."
+            "Any password that can be cracked in <span style='color:#FF1744;font-weight:700'>under 1 hour</span> "
+            "or is found in Have I Been Pwned is automatically rated "
+            "<span style='color:#FF1744;font-weight:700'>WEAK</span> regardless of its total score.",
+            unsafe_allow_html=True,
         )
 
 
