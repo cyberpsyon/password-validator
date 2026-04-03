@@ -870,6 +870,87 @@ def render_policy_compliance(password, result, compliance):
     )
 
 
+def render_share_card(result, compliance):
+    """Render the shareable result card at the bottom of Deep Analysis."""
+    score      = result["score"]
+    max_score  = result["max_score"]
+    rating     = result["rating"]
+    color      = RATING_COLORS.get(rating, "#46466A")
+    crack_time = result["crack_time"]
+    today      = datetime.date.today().strftime("%Y-%m-%d")
+
+    hibp_passed      = not any("have i been pwned" in r.lower() for r in result["failed"])
+    hibp_unavailable = any("hibp api unavailable" in r.lower() for r in result["failed"])
+    nist_pass        = compliance["nist_length"] and compliance["nist_breach"]
+    crack_resistant  = result["crack_seconds"] >= 3_153_600_000  # 100 years
+
+    def _check_row(passed, pass_text, fail_text):
+        icon  = "\u2713" if passed else "\u2717"
+        text  = pass_text if passed else fail_text
+        color = "#00E676" if passed else "#FF1744"
+        return (
+            f'<div style="font-size:0.68rem; color:{color}; letter-spacing:0.04em; '
+            f'font-family:JetBrains Mono,monospace;">{icon} {html.escape(text)}</div>'
+        )
+
+    hibp_count = result.get("hibp_count")
+    if hibp_unavailable:
+        hibp_row = _check_row(False, "", "Breach database check unavailable")
+    elif hibp_passed:
+        hibp_row = _check_row(True, "Not found in Have I Been Pwned breach database", "")
+    else:
+        count_str = f" ({hibp_count:,} breaches)" if hibp_count else ""
+        hibp_row = _check_row(False, "",
+                              f"Found in Have I Been Pwned breach database{count_str}")
+
+    checks_html = (
+        hibp_row
+        + _check_row(nist_pass,
+                     "NIST SP 800-63B compliant",
+                     "Does not meet NIST SP 800-63B")
+        + _check_row(crack_resistant,
+                     "Resists offline brute-force attack",
+                     "Vulnerable to offline brute-force attack")
+    )
+
+    st.markdown(
+        _html(f"""
+        <div class="t-reveal" style="border:1px solid #F5A623; margin:0.75rem 0;">
+            <div style="background:#F5A623; padding:0.4rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#06060C; font-size:0.6rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Password Validator // Security Report</span>
+                <span style="color:#06060C; font-size:0.58rem; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace;">{today}</span>
+            </div>
+            <div style="background:#0D0D1A; padding:1.25rem 1.5rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Score</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace;">{score}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;">/{max_score}</span></div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.35rem;">Rating</div>
+                        <div style="border:1px solid {color}; padding:0.25rem 0.75rem; display:inline-block;">
+                            <span style="font-size:1rem; font-weight:800; color:{color}; font-family:'JetBrains Mono',monospace;">{html.escape(rating)}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Crack Time</div>
+                        <div style="font-size:1.2rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; margin-top:0.15rem;">{html.escape(crack_time)}</div>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+                    {checks_html}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">pw-validator.streamlit.app</span>
+                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">Built by Ben Mickens</span>
+                </div>
+            </div>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+
 def render_attack_breakdown(result):
     """Render the attack method breakdown panel (Deep Analysis section)."""
     sequence = result.get("attack_sequence", [])
@@ -1081,6 +1162,7 @@ def render_validation_results(password):
     compliance = _compute_policy_compliance(password, result)
     render_attack_breakdown(result)
     render_policy_compliance(password, result, compliance)
+    render_share_card(result, compliance)
 
     st.session_state["validation_done"] = True
     st.session_state["last_validated_password"] = password
