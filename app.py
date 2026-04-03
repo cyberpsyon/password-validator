@@ -431,6 +431,10 @@ def inject_global_styles():
         #MainMenu { visibility: hidden; }
         footer    { visibility: hidden; }
         header    { visibility: hidden; }
+
+        /* ── Footer ── */
+        .pv-footer a { color: #46466A !important; text-decoration: none !important; }
+        .pv-footer a:hover { color: #F5A623 !important; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -961,15 +965,13 @@ elif st.session_state.get("validation_done") and \
     render_validation_results(password)
 
 st.markdown(
-    '<div style="margin-top:3rem; padding-top:1.25rem; border-top:1px solid #181830; '
-    'text-align:center;">'
+    '<div class="pv-footer" style="margin-top:3rem; padding-top:1.25rem; '
+    'border-top:1px solid #181830; text-align:center;">'
+    '<span style="color:#46466A; font-size:0.62rem; letter-spacing:0.14em;">BEN MICKENS</span>'
+    '<span style="color:#46466A; font-size:0.62rem; margin:0 0.75rem;">·</span>'
     '<a href="https://github.com/cyberpsyon/password-validator" target="_blank" '
-    'style="color:#46466A; font-size:0.62rem; letter-spacing:0.14em; '
-    'text-decoration:none; text-transform:uppercase; '
-    'transition:color 0.2s;" '
-    'onmouseover="this.style.color=\'#F5A623\'" '
-    'onmouseout="this.style.color=\'#46466A\'">'
-    '[ source: github ]'
+    'style="font-size:0.62rem; letter-spacing:0.14em; transition:color 0.2s;">'
+    '[ SOURCE: GITHUB ]'
     '</a>'
     '</div>',
     unsafe_allow_html=True,
