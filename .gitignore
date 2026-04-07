@@ -4,9 +4,8 @@
 # Python cache
 __pycache__/
 
-# Local tool settings
-.claude/
-CLAUDE.local.md
+# Security audits
+audits/
 
-# Internal planning docs
-docs/superpowers/
+# Swap files
+*.swp
