@@ -1,9 +1,6 @@
 # Logs
 *.log
 
-# Large wordlists / datasets
-rockyou.txt
-
 # Python cache
 __pycache__/
 
