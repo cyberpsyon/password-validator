@@ -19,30 +19,30 @@ from password_validator import (
 st.set_page_config(page_title="Password Validator", page_icon="\U0001f510", layout="centered")
 
 RATING_COLORS = {
-    "EXCELLENT": "#00E676",
-    "STRONG":    "#00E676",
-    "GOOD":      "#FFD600",
-    "FAIR":      "#FF6D00",
-    "WEAK":      "#FF1744",
+    "EXCELLENT": "#5C9E6E",
+    "STRONG":    "#5C9E6E",
+    "GOOD":      "#A89050",
+    "FAIR":      "#B86B3A",
+    "WEAK":      "#C44040",
 }
 
 RATING_SHADOWS = {
-    "EXCELLENT": "0 0 18px #00E67650",
-    "STRONG":    "0 0 18px #00E67650",
-    "GOOD":      "0 0 18px #FFD60050",
-    "FAIR":      "0 0 18px #FF6D0050",
-    "WEAK":      "0 0 18px #FF174450",
+    "EXCELLENT": "0 0 18px rgba(92,158,110,0.35)",
+    "STRONG":    "0 0 18px rgba(92,158,110,0.35)",
+    "GOOD":      "0 0 18px rgba(168,144,80,0.35)",
+    "FAIR":      "0 0 18px rgba(184,107,58,0.35)",
+    "WEAK":      "0 0 18px rgba(196,64,64,0.35)",
 }
 
 _GAUGE_SEGMENTS = [
-    (0,          "Instant",   "#FF1744"),
-    (60,         "Minutes",   "#FF1744"),
-    (3600,       "Hours",     "#FF6D00"),
-    (86400,      "Days",      "#FF6D00"),
-    (2592000,    "Months",    "#FFD600"),
-    (31536000,   "Years",     "#FFD600"),
-    (315360000,  "Decades",   "#00E676"),
-    (3153600000, "Centuries", "#00897B"),
+    (0,          "Instant",   "#C44040"),
+    (60,         "Minutes",   "#C44040"),
+    (3600,       "Hours",     "#B86B3A"),
+    (86400,      "Days",      "#B86B3A"),
+    (2592000,    "Months",    "#A89050"),
+    (31536000,   "Years",     "#A89050"),
+    (315360000,  "Decades",   "#5C9E6E"),
+    (3153600000, "Centuries", "#4A7A74"),
 ]
 
 _SEPARATORS = {
@@ -54,10 +54,10 @@ _SEPARATORS = {
 }
 
 _SEVERITY_COLORS = {
-    "critical": "#FF1744",
-    "moderate": "#FF6D00",
-    "low":      "#F5A623",
-    "none":     "#7878A0",
+    "critical": "#C44040",
+    "moderate": "#B86B3A",
+    "low":      "#A89050",
+    "none":     "rgba(232,223,211,0.35)",
 }
 
 _TAG_DISPLAY = {
@@ -73,64 +73,64 @@ _SAFETY_TIPS = [
     ("Use a unique password for every account",
      "When a company gets hacked, attackers take the stolen passwords and try "
      "them on other websites like your email, bank, and social media. If you "
-     "use the <span style='color:#FF1744;font-weight:700'>same password everywhere</span>, "
+     "use the <span style='color:#C44040;font-weight:700'>same password everywhere</span>, "
      "one breach can compromise all of your accounts. Always use a "
-     "<span style='color:#00E676;font-weight:700'>different password for each account</span>."),
+     "<span style='color:#5C9E6E;font-weight:700'>different password for each account</span>."),
 
     ("Use a password manager",
      "Nobody can remember dozens of strong, unique passwords. A "
-     "<span style='color:#F5A623;font-weight:700'>password manager</span> is an app "
+     "<span style='color:#D24D3E;font-weight:700'>password manager</span> is an app "
      "that securely stores all of your passwords for you. You only need to remember "
-     "<span style='color:#00E676;font-weight:700'>one master password</span>, and the manager fills in "
-     "the rest. <a href='https://1password.com/' target='_blank' style='color:#F5A623'>1Password</a> "
+     "<span style='color:#5C9E6E;font-weight:700'>one master password</span>, and the manager fills in "
+     "the rest. <a href='https://1password.com/' target='_blank' style='color:#D24D3E'>1Password</a> "
      "is the industry-leading option for individuals and teams."),
 
     ("Enable multi-factor authentication (MFA)",
-     "<span style='color:#F5A623;font-weight:700'>Multi-factor authentication</span> adds another step "
+     "<span style='color:#D24D3E;font-weight:700'>Multi-factor authentication</span> adds another step "
      "when you log in, like a code from an app on your phone or a physical security key. Even if "
      "someone steals your password, they still cannot get into your account without that second step. "
-     "<span style='color:#00E676;font-weight:700'>Turn on MFA everywhere it is available</span>, "
+     "<span style='color:#5C9E6E;font-weight:700'>Turn on MFA everywhere it is available</span>, "
      "especially for email, banking, and work accounts. "
-     "<span style='color:#FF1744;font-weight:700'>Avoid SMS-based MFA when possible.</span> "
+     "<span style='color:#C44040;font-weight:700'>Avoid SMS-based MFA when possible.</span> "
      "Authenticator apps (like Authy or Google Authenticator) and hardware security keys "
-     "(like <a href='https://www.yubico.com/get-yubikey' target='_blank' style='color:#F5A623'>YubiKey</a>) "
+     "(like <a href='https://www.yubico.com/get-yubikey' target='_blank' style='color:#D24D3E'>YubiKey</a>) "
      "are significantly harder to intercept or bypass."),
 
     ("Longer passwords are stronger passwords",
-     "A <span style='color:#F5A623;font-weight:700'>20-character passphrase</span> made of random words "
-     "(like <span style='color:#00E676;font-weight:700'>\"correct-horse-battery-staple\"</span>) "
+     "A <span style='color:#D24D3E;font-weight:700'>20-character passphrase</span> made of random words "
+     "(like <span style='color:#5C9E6E;font-weight:700'>\"correct-horse-battery-staple\"</span>) "
      "is both stronger and easier to type than a short, complicated password "
-     "like <span style='color:#FF1744;font-weight:700'>\"P@s5w0rd!\"</span>. "
-     "Aim for <span style='color:#F5A623;font-weight:700'>at least 15 characters</span>, but longer is always better."),
+     "like <span style='color:#C44040;font-weight:700'>\"P@s5w0rd!\"</span>. "
+     "Aim for <span style='color:#D24D3E;font-weight:700'>at least 15 characters</span>, but longer is always better."),
 
     ("Never share passwords over email or chat",
      "No legitimate company, IT department, or government agency will ever ask "
      "you for your password. If someone contacts you asking for your password, "
-     "<span style='color:#FF1744;font-weight:700'>it is a scam</span>. Always type your password "
-     "<span style='color:#00E676;font-weight:700'>directly</span> into the official website or app, "
-     "<span style='color:#FF1744;font-weight:700'>never</span> into an email, text message, or phone call."),
+     "<span style='color:#C44040;font-weight:700'>it is a scam</span>. Always type your password "
+     "<span style='color:#5C9E6E;font-weight:700'>directly</span> into the official website or app, "
+     "<span style='color:#C44040;font-weight:700'>never</span> into an email, text message, or phone call."),
 
     ("Watch for data breaches",
      "Data breaches happen regularly, and your information may be exposed "
      "without you knowing. Sign up for "
-     "<span style='color:#00E676;font-weight:700'>free alerts</span> at "
-     "<a href='https://haveibeenpwned.com' target='_blank' style='color:#F5A623'>Have I Been Pwned</a> to "
+     "<span style='color:#5C9E6E;font-weight:700'>free alerts</span> at "
+     "<a href='https://haveibeenpwned.com' target='_blank' style='color:#D24D3E'>Have I Been Pwned</a> to "
      "get notified if your email appears in a breach. When you get an alert, "
-     "<span style='color:#00E676;font-weight:700'>change the password</span> for that account immediately."),
+     "<span style='color:#5C9E6E;font-weight:700'>change the password</span> for that account immediately."),
 
     ("Change passwords that have been exposed",
      "If you find out that one of your passwords was part of a data breach, "
-     "<span style='color:#00E676;font-weight:700'>stop using it right away</span> on every account where you used it. "
+     "<span style='color:#5C9E6E;font-weight:700'>stop using it right away</span> on every account where you used it. "
      "Attackers share stolen passwords widely, so a breached password is "
-     "<span style='color:#FF1744;font-weight:700'>never safe to use again</span>, even if you change it slightly."),
+     "<span style='color:#C44040;font-weight:700'>never safe to use again</span>, even if you change it slightly."),
 
     ("A high score does not mean your password is unbreakable",
      "Even if this tool rates your password as \"Excellent\" with a crack time "
-     "of centuries, <span style='color:#FF1744;font-weight:700'>no password is truly permanent</span>. "
+     "of centuries, <span style='color:#C44040;font-weight:700'>no password is truly permanent</span>. "
      "Advances in technology, including "
-     "<span style='color:#F5A623;font-weight:700'>quantum computing</span>, will make password cracking "
+     "<span style='color:#D24D3E;font-weight:700'>quantum computing</span>, will make password cracking "
      "significantly faster in the future. "
-     "<span style='color:#00E676;font-weight:700'>Combine strong passwords with MFA</span> and change a "
+     "<span style='color:#5C9E6E;font-weight:700'>Combine strong passwords with MFA</span> and change a "
      "password only when you have reason to believe it has been compromised. "
      "Routine rotation tends to produce weaker, predictable passwords and is no longer recommended."),
 ]
@@ -144,7 +144,7 @@ _SAFETY_TIPS = [
 def _md_bold(text: str) -> str:
     """HTML-escape text, then render **bold** as <strong>."""
     text = html.escape(text)
-    return re.sub(r"\*\*(.+?)\*\*", r'<strong style="color:#F5A623;">\1</strong>', text)
+    return re.sub(r"\*\*(.+?)\*\*", r'<strong style="color:#D24D3E;">\1</strong>', text)
 
 
 def _html(markup: str) -> str:
@@ -173,35 +173,40 @@ def inject_global_styles():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
 
         :root {
-            --bg:          #06060C;
-            --surface:     #0D0D1A;
-            --surface2:    #111120;
-            --border:      #181830;
-            --border2:     #222240;
-            --amber:       #F5A623;
-            --amber-dim:   rgba(245, 166, 35, 0.08);
-            --amber-glow:  rgba(245, 166, 35, 0.22);
-            --text:        #CECEE0;
-            --text-dim:    #7878A0;
-            --green:       #00E676;
-            --red:         #FF1744;
-            --orange:      #FF6D00;
-            --yellow:      #FFD600;
-            --teal:        #00897B;
+            --bg:             #14110E;
+            --surface:        #1C1814;
+            --surface2:       #221E1A;
+            --border:         #2A2420;
+            --border2:        #352E28;
+            --vermilion:      #D24D3E;
+            --vermilion-dim:  rgba(210, 77, 62, 0.08);
+            --vermilion-glow: rgba(210, 77, 62, 0.22);
+            --washi:          #E8DFD3;
+            --washi-dim:      rgba(232, 223, 211, 0.35);
+            --washi-faint:    rgba(232, 223, 211, 0.15);
+            --green:          #5C9E6E;
+            --red:            #C44040;
+            --orange:         #B86B3A;
+            --yellow:         #A89050;
+            --teal:           #4A7A74;
         }
 
-        /* ── Global ── */
+        /* ── Global typography: monospace default, mincho for display ── */
         * { font-family: 'JetBrains Mono', 'Courier New', monospace !important; }
+        .pv-display,
+        .pv-display * {
+            font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
+        }
 
-        /* ── App background: dark grid ── */
+        /* ── App background: warm washi grid ── */
         .stApp {
             background-color: var(--bg) !important;
             background-image:
-                linear-gradient(rgba(245,166,35,0.016) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(245,166,35,0.016) 1px, transparent 1px);
+                linear-gradient(rgba(210,77,62,0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(210,77,62,0.012) 1px, transparent 1px);
             background-size: 52px 52px;
             background-attachment: fixed;
         }
@@ -213,31 +218,32 @@ def inject_global_styles():
         }
 
         /* ── Typography ── */
-        h1, h2, h3, h4, h5, h6 { color: var(--text) !important; letter-spacing: 0.05em !important; }
-        p, li { color: var(--text) !important; }
-        a { color: var(--amber) !important; }
+        h1, h2, h3, h4, h5, h6 { color: var(--washi) !important; letter-spacing: 0.05em !important; }
+        p, li { color: var(--washi) !important; }
+        a { color: var(--vermilion) !important; }
 
         /* ── Text input ── */
         .stTextInput > div > div {
             background: var(--surface) !important;
             border: 1px solid var(--border2) !important;
             border-radius: 0 !important;
-            transition: border-color 0.2s, box-shadow 0.2s !important;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
         }
         .stTextInput > div > div:focus-within {
-            border-color: var(--amber) !important;
-            box-shadow: 0 0 0 1px var(--amber), inset 0 0 30px var(--amber-dim) !important;
+            border-color: var(--vermilion) !important;
+            box-shadow: 0 0 0 1px var(--vermilion), inset 0 0 30px var(--vermilion-dim) !important;
         }
         .stTextInput input {
             background: transparent !important;
-            color: var(--amber) !important;
+            color: var(--vermilion) !important;
             font-size: 1.05rem !important;
             letter-spacing: 0.18em !important;
-            caret-color: var(--amber) !important;
+            caret-color: var(--vermilion) !important;
             padding: 0.75rem 1rem !important;
+            font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
         }
         .stTextInput label {
-            color: var(--text-dim) !important;
+            color: var(--washi-dim) !important;
             font-size: 0.68rem !important;
             letter-spacing: 0.14em !important;
             text-transform: uppercase !important;
@@ -245,11 +251,11 @@ def inject_global_styles():
 
         /* ── Buttons ── */
         .stButton > button {
-            background: linear-gradient(to right, transparent 50%, var(--amber) 50%) !important;
+            background: linear-gradient(to right, transparent 50%, var(--vermilion) 50%) !important;
             background-size: 200% 100% !important;
             background-position: left center !important;
-            color: var(--amber) !important;
-            border: 1px solid var(--amber) !important;
+            color: var(--vermilion) !important;
+            border: 1px solid var(--vermilion) !important;
             border-radius: 0 !important;
             font-weight: 700 !important;
             font-size: 0.8rem !important;
@@ -265,13 +271,13 @@ def inject_global_styles():
         }
         .stButton > button:hover {
             background-position: right center !important;
-            color: #060610 !important;
+            color: var(--bg) !important;
             letter-spacing: 0.28em !important;
-            box-shadow: 0 0 22px var(--amber-glow), 0 4px 16px rgba(245,166,35,0.2) !important;
+            box-shadow: 0 0 22px var(--vermilion-glow), 0 4px 16px rgba(210,77,62,0.15) !important;
         }
         .stButton > button:active {
             background-position: right center !important;
-            color: #060610 !important;
+            color: var(--bg) !important;
             box-shadow: none !important;
         }
 
@@ -288,12 +294,13 @@ def inject_global_styles():
 
         /* ── Metric ── */
         [data-testid="stMetricValue"] {
-            color: var(--amber) !important;
+            color: var(--vermilion) !important;
             font-size: 2.6rem !important;
-            font-weight: 800 !important;
+            font-weight: 700 !important;
+            font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', serif !important;
         }
         [data-testid="stMetricLabel"] {
-            color: var(--text-dim) !important;
+            color: var(--washi-dim) !important;
             font-size: 0.68rem !important;
             letter-spacing: 0.15em !important;
             text-transform: uppercase !important;
@@ -310,13 +317,13 @@ def inject_global_styles():
             display: flex !important;
             align-items: center !important;
             list-style: none !important;
-            color: var(--text-dim) !important;
+            color: var(--washi-dim) !important;
             font-size: 0.7rem !important;
             letter-spacing: 0.12em !important;
             text-transform: uppercase !important;
             padding: 0.8rem 1rem !important;
             cursor: pointer !important;
-            transition: color 0.15s, background 0.15s !important;
+            transition: color 0.2s ease, background 0.2s ease !important;
         }
         details summary::-webkit-details-marker { display: none !important; }
         /* Verified Streamlit expander DOM (from streamlit static JS source):
@@ -327,27 +334,27 @@ def inject_global_styles():
            summary > span hides the ENTIRE heading; we must go one level deeper. */
         details summary > span > span,
         details summary > span > svg { display: none !important; }
-        /* Custom terminal toggle indicator */
+        /* Ensō-inspired toggle indicator: open circle → filled stroke */
         details summary::after {
-            content: '▸' !important;
-            color: var(--text-dim) !important;
-            font-size: 0.75rem !important;
+            content: '◯' !important;
+            color: var(--washi-dim) !important;
+            font-size: 0.85rem !important;
             flex-shrink: 0 !important;
-            transition: transform 0.2s ease, color 0.15s !important;
+            transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), color 0.2s !important;
             display: inline-block !important;
             margin-left: 0.75rem !important;
         }
-        details summary:hover::after { color: var(--amber) !important; }
+        details summary:hover::after { color: var(--vermilion) !important; transform: rotate(45deg) !important; }
         details[open] summary::after {
-            transform: rotate(90deg) !important;
-            color: var(--amber) !important;
+            content: '●' !important;
+            color: var(--vermilion) !important;
         }
         details summary:hover {
-            color: var(--amber) !important;
-            background: var(--amber-dim) !important;
+            color: var(--vermilion) !important;
+            background: var(--vermilion-dim) !important;
         }
         details[open] summary {
-            color: var(--amber) !important;
+            color: var(--vermilion) !important;
             border-bottom: 1px solid var(--border) !important;
         }
         .streamlit-expanderContent {
@@ -356,7 +363,11 @@ def inject_global_styles():
         }
 
         /* ── Slider ── */
-        [data-baseweb="slider"] [data-testid="stTickBar"] { color: var(--text-dim) !important; }
+        [data-baseweb="slider"] [data-testid="stTickBar"] { color: var(--washi-dim) !important; }
+        [data-baseweb="slider"] [role="slider"] {
+            background: var(--vermilion) !important;
+            border-color: var(--vermilion) !important;
+        }
 
         /* ── Selectbox ── */
         [data-baseweb="select"] > div {
@@ -364,11 +375,11 @@ def inject_global_styles():
             border-color: var(--border2) !important;
             border-radius: 0 !important;
         }
-        [data-baseweb="select"] span, [data-baseweb="select"] div { color: var(--text) !important; }
+        [data-baseweb="select"] span, [data-baseweb="select"] div { color: var(--washi) !important; }
 
         /* ── Checkbox ── */
         .stCheckbox label p, .stCheckbox label span {
-            color: var(--text-dim) !important;
+            color: var(--washi-dim) !important;
             font-size: 0.76rem !important;
         }
 
@@ -380,9 +391,9 @@ def inject_global_styles():
             background: var(--surface2) !important;
             border-radius: 0 !important;
             border: 1px solid var(--border2) !important;
-            border-left: 3px solid var(--amber) !important;
+            border-left: 3px solid var(--vermilion) !important;
         }
-        .stAlert > div { font-size: 0.8rem !important; color: var(--text) !important; }
+        .stAlert > div { font-size: 0.8rem !important; color: var(--washi) !important; }
 
         /* ── Code blocks ── */
         .stCode > div, pre {
@@ -396,7 +407,7 @@ def inject_global_styles():
         table { border-collapse: collapse !important; width: 100% !important; }
         th {
             background: var(--surface2) !important;
-            color: var(--amber) !important;
+            color: var(--vermilion) !important;
             border: 1px solid var(--border2) !important;
             padding: 0.5rem 0.75rem !important;
             font-size: 0.66rem !important;
@@ -405,15 +416,15 @@ def inject_global_styles():
         }
         td {
             background: var(--surface) !important;
-            color: var(--text) !important;
+            color: var(--washi) !important;
             border: 1px solid var(--border2) !important;
             padding: 0.5rem 0.75rem !important;
             font-size: 0.78rem !important;
         }
-        td a { color: var(--amber) !important; }
+        td a { color: var(--vermilion) !important; }
 
         /* ── Spinner ── */
-        .stSpinner > div { border-top-color: var(--amber) !important; }
+        .stSpinner > div { border-top-color: var(--vermilion) !important; }
 
         /* ── Fade-in animation ── */
         @keyframes terminalReveal {
@@ -421,7 +432,7 @@ def inject_global_styles():
             to   { opacity: 1; transform: translateY(0); }
         }
         .t-reveal {
-            animation: terminalReveal 0.3s ease-out forwards;
+            animation: terminalReveal 0.45s cubic-bezier(0.22,1,0.36,1) forwards;
         }
 
         /* ── Input disclaimer cycling ── */
@@ -443,26 +454,26 @@ def inject_global_styles():
 
         /* ── Result row color coding ── */
         .pv-row-pass {
-            background: rgba(0, 230, 118, 0.06);
+            background: rgba(92, 158, 110, 0.06);
             border-left: 2px solid var(--green);
             padding-left: 0.6rem;
             margin-left: -0.6rem;
         }
         .pv-row-fail {
-            background: rgba(255, 23, 68, 0.06);
+            background: rgba(196, 64, 64, 0.06);
             border-left: 2px solid var(--red);
             padding-left: 0.6rem;
             margin-left: -0.6rem;
         }
         .pv-row-warn {
-            background: rgba(245, 166, 35, 0.08);
-            border-left: 2px solid var(--amber);
+            background: rgba(210, 77, 62, 0.08);
+            border-left: 2px solid var(--vermilion);
             padding-left: 0.6rem;
             margin-left: -0.6rem;
         }
         .pv-row-opt {
-            background: rgba(120, 120, 160, 0.06);
-            border-left: 2px solid var(--text-dim);
+            background: rgba(232, 223, 211, 0.04);
+            border-left: 2px solid var(--washi-dim);
             padding-left: 0.6rem;
             margin-left: -0.6rem;
         }
@@ -471,7 +482,7 @@ def inject_global_styles():
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border2); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vermilion); }
 
         /* ── Hide Streamlit chrome ── */
         #MainMenu { visibility: hidden; }
@@ -479,8 +490,8 @@ def inject_global_styles():
         header    { visibility: hidden; }
 
         /* ── Footer ── */
-        .pv-footer a { color: #7878A0 !important; text-decoration: none !important; }
-        .pv-footer a:hover { color: #F5A623 !important; }
+        .pv-footer a { color: rgba(232,223,211,0.25) !important; text-decoration: none !important; transition: color 0.25s ease !important; }
+        .pv-footer a:hover { color: var(--vermilion) !important; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -494,10 +505,11 @@ def inject_global_styles():
 def render_header():
     st.markdown(
         _html("""
-        <div style="border:1px solid #222240; border-top:2px solid #F5A623; background:#0D0D1A; padding:1.75rem 2rem 1.5rem; margin-bottom:2rem; position:relative;">
-            <div style="position:absolute; top:0; right:0; background:#F5A623; color:#06060C; font-size:0.55rem; font-weight:800; letter-spacing:0.2em; padding:0.2rem 0.8rem; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">PSV-01 // SECURE</div>
-            <div style="color:#7878A0; font-size:0.6rem; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:0.55rem; font-family:'JetBrains Mono',monospace;">Security Analysis Terminal</div>
-            <div style="color:#CECEE0; font-size:1.65rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; line-height:1; font-family:'JetBrains Mono',monospace;">Password Validator</div>
+        <div style="border:1px solid #352E28; border-top:2px solid #D24D3E; background:#1C1814; padding:1.85rem 2rem 1.5rem; margin-bottom:2rem; position:relative; overflow:hidden;">
+            <div style="position:absolute; top:0; right:0; background:#D24D3E; color:#14110E; font-size:0.55rem; font-weight:700; letter-spacing:0.2em; padding:0.2rem 0.8rem; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">強度測定 // SECURE</div>
+            <div style="position:absolute; right:1.5rem; bottom:1rem; width:3.25rem; height:3.25rem; border:1.5px solid rgba(210,77,62,0.45); border-right-color:transparent; border-radius:50%; transform:rotate(-22deg); pointer-events:none;"></div>
+            <div style="color:rgba(232,223,211,0.35); font-size:0.6rem; letter-spacing:0.24em; text-transform:uppercase; margin-bottom:0.55rem; font-family:'JetBrains Mono',monospace;">強度の測定 &mdash; Strength Measurement</div>
+            <div class="pv-display" style="color:#E8DFD3; font-size:1.9rem; font-weight:700; letter-spacing:0.06em; line-height:1;">Password Validator</div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -530,23 +542,23 @@ def render_threat_gauge(crack_time_display, crack_seconds):
             f'<div title="{html.escape(label)}" style="'
             f'width:{width_pct:.2f}%; height:100%; '
             f'background:{color}; opacity:{opacity}; '
-            f'display:inline-block; border-right:2px solid #06060C;'
+            f'display:inline-block; border-right:2px solid #14110E;'
             f'"></div>'
         )
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+        <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; padding:1.25rem 1.5rem; margin:0.75rem 0;">
             <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.8rem;">
-                <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Estimated Crack Time</span>
+                <span style="font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Estimated Crack Time</span>
                 <span style="font-size:1.3rem; font-weight:800; color:{tier_color}; letter-spacing:0.06em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">{html.escape(crack_time_display)}</span>
             </div>
             <div style="width:100%; height:1.35rem; display:flex; overflow:hidden;">
                 {segments_html}
             </div>
             <div style="display:flex; justify-content:space-between; margin-top:0.4rem;">
-                <span style="font-size:0.56rem; color:#FF1744; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">&#8592; Instant</span>
-                <span style="font-size:0.56rem; color:#00897B; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Centuries &#8594;</span>
+                <span style="font-size:0.56rem; color:#C44040; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">&#8592; Instant</span>
+                <span style="font-size:0.56rem; color:#4A7A74; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Centuries &#8594;</span>
             </div>
         </div>
         """),
@@ -569,18 +581,19 @@ def _render_copy_output(value: str) -> None:
         body {{ background:transparent; }}
         #wrap {{ display:flex; align-items:stretch; }}
         #out {{
-            flex:1; background:#111120; border:1px solid #222240;
-            padding:0.75rem 1rem; font-size:0.9rem; color:#00E676;
+            flex:1; background:#1C1814; border:1px solid #352E28;
+            padding:0.75rem 1rem; font-size:0.9rem; color:#5C9E6E;
             letter-spacing:0.08em; word-break:break-all; user-select:all;
         }}
         #btn {{
-            background:transparent; border:1px solid #222240; border-left:0;
-            color:#F5A623; font-size:0.65rem; letter-spacing:0.15em;
+            background:transparent; border:1px solid #352E28; border-left:0;
+            color:#D24D3E; font-size:0.65rem; letter-spacing:0.15em;
             text-transform:uppercase; padding:0 0.9rem; cursor:pointer;
             white-space:nowrap; display:flex; align-items:center;
             user-select:none; outline:none;
+            transition: background 0.2s ease, color 0.2s ease;
         }}
-        #btn:hover {{ background:rgba(245,166,35,0.08); }}
+        #btn:hover {{ background:rgba(210,77,62,0.08); }}
         #btn:focus {{ outline:none; }}
         </style>
         <div id="wrap">
@@ -678,7 +691,7 @@ def render_safety_tips_panel():
     """Render password safety tips as collapsible sub-expanders."""
     with st.expander("Safety Tips"):
         st.markdown(
-            '<p style="color:#7878A0; font-size:0.76rem; margin-bottom:1rem;">'
+            '<p style="color:rgba(232,223,211,0.35); font-size:0.76rem; margin-bottom:1rem;">'
             "Follow these tips to keep your accounts safe. "
             "Click on any tip to learn more.</p>",
             unsafe_allow_html=True,
@@ -687,8 +700,8 @@ def render_safety_tips_panel():
             with st.expander(title):
                 st.markdown(body, unsafe_allow_html=True)
         st.markdown(
-            '<p style="color:#7878A0; font-size:0.76rem; margin-top:0.75rem;">'
-            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:#7878A0;'>NIST SP 800-63B Rev. 4</a>.</p>",
+            '<p style="color:rgba(232,223,211,0.35); font-size:0.76rem; margin-top:0.75rem;">'
+            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:rgba(232,223,211,0.35);'>NIST SP 800-63B Rev. 4</a>.</p>",
             unsafe_allow_html=True,
         )
 
@@ -697,7 +710,7 @@ def render_scoring_panel():
     """Render a generic scoring explanation inside an expander."""
     with st.expander("How Scoring Works"):
         st.markdown(
-            "Your password is scored out of <span style='color:#F5A623;font-weight:700'>100 points</span> across 7 categories. "
+            "Your password is scored out of <span style='color:#D24D3E;font-weight:700'>100 points</span> across 7 categories. "
             "Crack-time resistance carries the most weight because it directly measures "
             "real-world entropy. Character diversity rules are useful nudges, not a "
             "substitute for genuine unpredictability.",
@@ -751,43 +764,43 @@ def render_scoring_panel():
         st.markdown("#### Entropy: What Are Bits and Guesses?")
         st.markdown(_html("""
             <p>Alongside your score, you'll see an
-            <span style='color:#F5A623;font-weight:700'>entropy</span> value measured in
-            <span style='color:#F5A623;font-weight:700'>bits</span>.
+            <span style='color:#D24D3E;font-weight:700'>entropy</span> value measured in
+            <span style='color:#D24D3E;font-weight:700'>bits</span>.
             Entropy is a way of measuring how unpredictable your password is, not how complex it looks,
             but how many attempts an attacker would need to guess it.</p>
-            <p><span style='color:#F5A623;font-weight:700'>Bits</span> are the unit. Each additional bit doubles the number of guesses required.
+            <p><span style='color:#D24D3E;font-weight:700'>Bits</span> are the unit. Each additional bit doubles the number of guesses required.
             Think of it like this: 10 bits = ~1,000 guesses. 20 bits = ~1 million. 40 bits = ~1 trillion.
             Every bit you add makes the attacker's job exponentially harder, not just a little harder.</p>
-            <p><span style='color:#F5A623;font-weight:700'>Guesses</span> is the same number written in plain English: the raw count of attempts
+            <p><span style='color:#D24D3E;font-weight:700'>Guesses</span> is the same number written in plain English: the raw count of attempts
             a computer would have to make before it's likely to crack your password.
             A modern offline attack can test billions of guesses per second, so anything under
             a few trillion (~42 bits) is considered reachable with enough hardware and time.</p>
             <p>A long passphrase like
-            <code style='color:#00E676;background:rgba(0,230,118,0.08);padding:0.1rem 0.35rem'>correct-horse-battery-staple</code>
+            <code style='color:#5C9E6E;background:rgba(92,158,110,0.1);padding:0.1rem 0.35rem'>correct-horse-battery-staple</code>
             can reach 50+ bits of entropy with no uppercase, numbers, or symbols, because its length
             and randomness create a search space too large to brute-force. That's the core insight:
-            <span style='color:#00E676;font-weight:700'>length beats complexity</span>.</p>
+            <span style='color:#5C9E6E;font-weight:700'>length beats complexity</span>.</p>
         """), unsafe_allow_html=True)
 
         st.markdown("#### Final Rating")
         st.markdown(_html("""
             <table style='width:100%;border-collapse:collapse;font-size:0.82rem'>
             <thead><tr>
-            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Rating</th>
-            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Score Range</th>
+            <th style='color:#46423C;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #352E28'>Rating</th>
+            <th style='color:#46423C;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #352E28'>Score Range</th>
             </tr></thead>
             <tbody>
-            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>EXCELLENT</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>100</td></tr>
-            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>STRONG</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>80&ndash;95</td></tr>
-            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FFD600;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FFD600;padding:0.1rem 0.45rem'>GOOD</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>60&ndash;75</td></tr>
-            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FF6D00;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF6D00;padding:0.1rem 0.45rem'>FAIR</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>40&ndash;55</td></tr>
-            <tr><td style='padding:0.35rem 0.6rem'><span style='color:#FF1744;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF1744;padding:0.1rem 0.45rem'>WEAK</span></td><td style='padding:0.35rem 0.6rem;color:#CECEE0'>Below 40</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420'><span style='color:#5C9E6E;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #5C9E6E;padding:0.1rem 0.45rem'>EXCELLENT</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420;color:#E8DFD3'>100</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420'><span style='color:#5C9E6E;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #5C9E6E;padding:0.1rem 0.45rem'>STRONG</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420;color:#E8DFD3'>80&ndash;95</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420'><span style='color:#A89050;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #A89050;padding:0.1rem 0.45rem'>GOOD</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420;color:#E8DFD3'>60&ndash;75</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420'><span style='color:#B86B3A;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #B86B3A;padding:0.1rem 0.45rem'>FAIR</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #2A2420;color:#E8DFD3'>40&ndash;55</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem'><span style='color:#C44040;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #C44040;padding:0.1rem 0.45rem'>WEAK</span></td><td style='padding:0.35rem 0.6rem;color:#E8DFD3'>Below 40</td></tr>
             </tbody></table>
         """), unsafe_allow_html=True)
         st.markdown(
-            "Any password that can be cracked in <span style='color:#FF1744;font-weight:700'>under 1 hour</span> "
+            "Any password that can be cracked in <span style='color:#C44040;font-weight:700'>under 1 hour</span> "
             "or is found in Have I Been Pwned is automatically rated "
-            "<span style='color:#FF1744;font-weight:700'>WEAK</span> regardless of its total score.",
+            "<span style='color:#C44040;font-weight:700'>WEAK</span> regardless of its total score.",
             unsafe_allow_html=True,
         )
 
@@ -816,20 +829,20 @@ def render_policy_compliance(password, result, compliance):
         if na:
             return (
                 f'<div style="text-align:center;">'
-                f'<span style="color:#7878A0; font-size:0.62rem; font-weight:700; '
+                f'<span style="color:rgba(232,223,211,0.35); font-size:0.62rem; font-weight:700; '
                 f'font-family:JetBrains Mono,monospace;">[N/A]</span>'
-                f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+                f'<div style="font-size:0.58rem; color:rgba(232,223,211,0.35); margin-top:0.15rem; '
                 f'font-family:JetBrains Mono,monospace;">{html.escape(pass_label)}</div>'
                 f'</div>'
             )
-        color = "#00E676" if passed else "#FF1744"
+        color = "#5C9E6E" if passed else "#C44040"
         badge = "[PASS]" if passed else "[FAIL]"
         label = pass_label if passed else fail_label
         return (
             f'<div style="text-align:center;">'
             f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
             f'font-family:JetBrains Mono,monospace;">{badge}</span>'
-            f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+            f'<div style="font-size:0.58rem; color:rgba(232,223,211,0.35); margin-top:0.15rem; '
             f'font-family:JetBrains Mono,monospace;">{html.escape(label)}</div>'
             f'</div>'
         )
@@ -837,8 +850,8 @@ def render_policy_compliance(password, result, compliance):
     def _row(criterion, old_cell, nist_cell):
         return (
             f'<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
-            f'padding:0.5rem 0; border-bottom:1px solid #111120; align-items:center;">'
-            f'<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            f'padding:0.5rem 0; border-bottom:1px solid #221E1A; align-items:center;">'
+            f'<div style="font-size:0.7rem; color:#E8DFD3; font-family:JetBrains Mono,monospace;">'
             f'{html.escape(criterion)}</div>'
             f'{old_cell}{nist_cell}'
             f'</div>'
@@ -848,9 +861,9 @@ def render_policy_compliance(password, result, compliance):
     header = (
         '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">'
         '<div></div>'
-        '<div style="font-size:0.52rem; color:#7878A0; letter-spacing:0.1em; text-transform:uppercase; '
+        '<div style="font-size:0.52rem; color:rgba(232,223,211,0.35); letter-spacing:0.1em; text-transform:uppercase; '
         'text-align:center; font-family:JetBrains Mono,monospace;">Old-School Corporate</div>'
-        '<div style="font-size:0.52rem; color:#F5A623; letter-spacing:0.1em; text-transform:uppercase; '
+        '<div style="font-size:0.52rem; color:#D24D3E; letter-spacing:0.1em; text-transform:uppercase; '
         'text-align:center; font-family:JetBrains Mono,monospace;">NIST SP 800-63B</div>'
         '</div>'
     )
@@ -877,7 +890,7 @@ def render_policy_compliance(password, result, compliance):
         + (
             '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
             'padding:0.5rem 0; align-items:center;">'
-            '<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            '<div style="font-size:0.7rem; color:#E8DFD3; font-family:JetBrains Mono,monospace;">'
             'Forced rotation</div>'
             + _cell(False, "typically every 90 days", "typically every 90 days", na=True)
             + _cell(True, "not recommended", "not recommended")
@@ -890,25 +903,25 @@ def render_policy_compliance(password, result, compliance):
 
     if cs_pass and nist_pass:
         summary = "This password meets both standards."
-        summary_color = "#00E676"
+        summary_color = "#5C9E6E"
     elif nist_pass and not cs_pass:
         summary = ("This password would be rejected by a typical corporate policy but is fully "
                    "compliant with NIST SP 800-63B, and significantly harder to crack.")
-        summary_color = "#F5A623"
+        summary_color = "#D24D3E"
     elif cs_pass and not nist_pass:
         summary = ("This password meets old-school corporate requirements but does not meet "
                    "current NIST guidance.")
-        summary_color = "#FF6D00"
+        summary_color = "#B86B3A"
     else:
         summary = "This password fails both standards."
-        summary_color = "#FF1744"
+        summary_color = "#C44040"
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
-            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">Policy Compliance</div>
+        <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #2A2420;">Policy Compliance</div>
             {rows_html}
-            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #2A2420; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -920,7 +933,7 @@ def render_share_card(result, compliance):
     score      = result["score"]
     max_score  = result["max_score"]
     rating     = result["rating"]
-    color      = RATING_COLORS.get(rating, "#46466A")
+    color      = RATING_COLORS.get(rating, "#46423C")
     crack_time = result["crack_time"]
     today      = datetime.date.today().strftime("%Y-%m-%d")
 
@@ -932,7 +945,7 @@ def render_share_card(result, compliance):
     def _check_row(passed, pass_text, fail_text):
         icon  = "\u2713" if passed else "\u2717"
         text  = pass_text if passed else fail_text
-        color = "#00E676" if passed else "#FF1744"
+        color = "#5C9E6E" if passed else "#C44040"
         return (
             f'<div style="font-size:0.68rem; color:{color}; letter-spacing:0.04em; '
             f'font-family:JetBrains Mono,monospace;">{icon} {html.escape(text)}</div>'
@@ -960,34 +973,34 @@ def render_share_card(result, compliance):
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="border:1px solid #F5A623; margin:0.75rem 0;">
-            <div style="background:#F5A623; padding:0.4rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
-                <span style="color:#06060C; font-size:0.6rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Password Validator // Security Report</span>
-                <span style="color:#06060C; font-size:0.58rem; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace;">{today}</span>
+        <div class="t-reveal" style="border:1px solid #D24D3E; margin:0.75rem 0;">
+            <div style="background:#D24D3E; padding:0.4rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#14110E; font-size:0.6rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Password Validator // Security Report</span>
+                <span style="color:#14110E; font-size:0.58rem; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace;">{today}</span>
             </div>
-            <div style="background:#0D0D1A; padding:1.25rem 1.5rem;">
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+            <div style="background:#1C1814; padding:1.25rem 1.5rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #2A2420;">
                     <div>
-                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Score</div>
-                        <div style="font-size:1.6rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace;">{score}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;">/{max_score}</span></div>
+                        <div style="font-size:0.5rem; color:rgba(232,223,211,0.35); letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Score</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace;">{score}<span style="font-size:0.75rem; color:rgba(232,223,211,0.35); font-weight:400;">/{max_score}</span></div>
                     </div>
                     <div>
-                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.35rem;">Rating</div>
+                        <div style="font-size:0.5rem; color:rgba(232,223,211,0.35); letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.35rem;">Rating</div>
                         <div style="border:1px solid {color}; padding:0.25rem 0.75rem; display:inline-block;">
                             <span style="font-size:1rem; font-weight:800; color:{color}; font-family:'JetBrains Mono',monospace;">{html.escape(rating)}</span>
                         </div>
                     </div>
                     <div>
-                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Crack Time</div>
+                        <div style="font-size:0.5rem; color:rgba(232,223,211,0.35); letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Crack Time</div>
                         <div style="font-size:1.2rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; margin-top:0.15rem;">{html.escape(crack_time.capitalize())}</div>
                     </div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:0.3rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+                <div style="display:flex; flex-direction:column; gap:0.3rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #2A2420;">
                     {checks_html}
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">pw-validator.streamlit.app</span>
-                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">Built by Ben Mickens</span>
+                    <span style="font-size:0.58rem; color:#46423C; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">pw-validator.streamlit.app</span>
+                    <span style="font-size:0.58rem; color:#46423C; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">Built by Ben Mickens</span>
                 </div>
             </div>
         </div>
@@ -1003,39 +1016,39 @@ def render_attack_breakdown(result):
 
     if not non_brute:
         content_html = (
-            '<div style="color:#00E676; font-size:0.75rem; letter-spacing:0.06em; '
+            '<div style="color:#5C9E6E; font-size:0.75rem; letter-spacing:0.06em; '
             'font-family:JetBrains Mono,monospace;">'
             '\u2713 No exploitable patterns detected. Attacker falls back to pure brute force.</div>'
         )
         summary = "Without a recognizable pattern, cracking requires testing every possible combination."
-        summary_color = "#7878A0"
+        summary_color = "rgba(232,223,211,0.35)"
     else:
         rows = ""
         for item in non_brute:
-            color = _SEVERITY_COLORS.get(item["severity"], "#7878A0")
+            color = _SEVERITY_COLORS.get(item["severity"], "rgba(232,223,211,0.35)")
             tag_display = _TAG_DISPLAY.get(item["tag"], item["tag"])
             rows += (
                 f'<div style="display:flex; gap:0.8rem; align-items:baseline; margin:0.38rem 0;">'
                 f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
                 f'white-space:nowrap; font-family:JetBrains Mono,monospace;">{html.escape(tag_display)}</span>'
-                f'<span style="color:#F5A623; font-size:0.82rem; font-weight:700; '
+                f'<span style="color:#D24D3E; font-size:0.82rem; font-weight:700; '
                 f'font-family:JetBrains Mono,monospace; white-space:nowrap;">'
                 f'&quot;{html.escape(item["token"])}&quot;</span>'
-                f'<span style="color:#7878A0; font-size:0.72rem; font-family:JetBrains Mono,monospace;">'
+                f'<span style="color:rgba(232,223,211,0.35); font-size:0.72rem; font-family:JetBrains Mono,monospace;">'
                 f'{html.escape(item["description"])}</span>'
                 f'</div>'
             )
         content_html = rows
         summary = ("Attackers use automated tools that try dictionary words, dates, and keyboard "
                    "patterns before brute force.")
-        summary_color = "#7878A0"
+        summary_color = "rgba(232,223,211,0.35)"
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
-            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">How An Attacker Would Crack This</div>
+        <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #2A2420;">How An Attacker Would Crack This</div>
             {content_html}
-            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #2A2420; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -1061,13 +1074,13 @@ def render_validation_results(password):
     score      = result["score"]
     max_score  = result["max_score"]
     rating     = result["rating"]
-    color      = RATING_COLORS.get(rating, "#46466A")
+    color      = RATING_COLORS.get(rating, "#46423C")
     shadow     = RATING_SHADOWS.get(rating, "none")
     score_pct  = min(score / max_score * 100, 100)
 
     # ── Section separator ──────────────────────────────────────────────────
     st.markdown(
-        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Analysis Results</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
+        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#2A2420;"></div><span style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Analysis Results</span><div style="flex:1; height:1px; background:#2A2420;"></div></div>'),
         unsafe_allow_html=True,
     )
 
@@ -1077,24 +1090,24 @@ def render_validation_results(password):
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.5rem 1.5rem; margin-bottom:0.75rem;">
+        <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; padding:1.5rem 1.5rem; margin-bottom:0.75rem;">
             <div style="display:flex; align-items:flex-start;">
                 <div style="flex:1.25; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center;">
-                    <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Security Score</div>
-                    <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> / {max_score}</span></div>
-                    <div style="margin-top:1rem; width:100%; height:4px; background:#111120;">
+                    <div style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.55rem;">Security Score</div>
+                    <div class="pv-display" style="font-size:2.1rem; font-weight:500; color:{color}; line-height:1; letter-spacing:-0.01em;"><span id="pv-score" data-target="{score}">0</span><span style="font-size:0.9rem; color:rgba(232,223,211,0.35); font-weight:400;"> / {max_score}</span></div>
+                    <div style="margin-top:1rem; width:100%; height:4px; background:#221E1A;">
                         <div id="pv-bar" data-target-width="{score_pct:.1f}" style="width:0%; height:100%; background:{color}; transition:none;"></div>
                     </div>
                 </div>
-                <div style="width:1px; background:#222240; align-self:stretch; margin:0 1rem; flex-shrink:0;"></div>
+                <div style="width:1px; background:#352E28; align-self:stretch; margin:0 1rem; flex-shrink:0;"></div>
                 <div style="flex:1.5; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center;">
-                    <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.45rem;">Entropy</div>
-                    <div style="font-size:1.5rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; letter-spacing:-0.02em;">{entropy_bits:.1f}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;"> bits</span></div>
-                    <div style="margin-top:1rem; font-size:0.62rem; color:#7878A0; font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;">~{_format_guesses(guesses)}</div>
+                    <div style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.55rem;">Entropy</div>
+                    <div class="pv-display" style="font-size:2.1rem; font-weight:500; color:{color}; line-height:1; letter-spacing:-0.01em;">{entropy_bits:.1f}<span style="font-size:0.9rem; color:rgba(232,223,211,0.35); font-weight:400;"> bits</span></div>
+                    <div style="margin-top:1rem; font-size:0.62rem; color:rgba(232,223,211,0.35); font-family:'JetBrains Mono',monospace; letter-spacing:0.06em;">~{_format_guesses(guesses)}</div>
                 </div>
-                <div style="width:1px; background:#222240; align-self:stretch; margin:0 1rem; flex-shrink:0;"></div>
+                <div style="width:1px; background:#352E28; align-self:stretch; margin:0 1rem; flex-shrink:0;"></div>
                 <div style="flex:1.75; min-width:0; display:flex; flex-direction:column; align-items:center; text-align:center; padding-left:0.5rem;">
-                    <div style="font-size:0.56rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
+                    <div style="font-size:0.56rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Rating</div>
                     <div id="pv-rating" data-rating="{html.escape(rating)}" style="color:{color}; font-size:0.9rem; font-weight:800; letter-spacing:0.12em; text-indent:0.12em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; border:1px solid {color}; padding:0.4rem 0.6rem; box-shadow:{shadow}; white-space:nowrap;"></div>
                 </div>
             </div>
@@ -1125,25 +1138,25 @@ def render_validation_results(password):
     for rule in passed:
         rows_html += (
             f'<div class="pv-row-pass" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
-            f'<span style="color:#00E676; {badge_style}">[OK]</span>'
-            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
+            f'<span style="color:#5C9E6E; {badge_style}">[OK]</span>'
+            f'<span style="color:#E8DFD3; font-size:0.78rem; line-height:1.4; '
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
     for rule in failed:
         if rule.startswith("\u26a0"):
             row_class = "pv-row-warn"
-            badge = f'<span style="color:#F5A623; {badge_style}">[WARN]</span>'
+            badge = f'<span style="color:#D24D3E; {badge_style}">[WARN]</span>'
         elif rule.startswith("\u25cb"):
             row_class = "pv-row-opt"
-            badge = f'<span style="color:#7878A0; {badge_style}">[OPT]</span>'
+            badge = f'<span style="color:rgba(232,223,211,0.35); {badge_style}">[OPT]</span>'
         else:
             row_class = "pv-row-fail"
-            badge = f'<span style="color:#FF1744; {badge_style}">[FAIL]</span>'
+            badge = f'<span style="color:#C44040; {badge_style}">[FAIL]</span>'
         rows_html += (
             f'<div class="{row_class}" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
             f'{badge}'
-            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
+            f'<span style="color:#E8DFD3; font-size:0.78rem; line-height:1.4; '
             f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
@@ -1151,7 +1164,7 @@ def render_validation_results(password):
             count = result["hibp_count"]
             rows_html += (
                 f'<div style="padding:0.3rem 0.6rem 0.5rem 2.5rem; font-size:0.67rem; '
-                f'color:#7878A0; line-height:1.6; font-family:JetBrains Mono,monospace;">'
+                f'color:rgba(232,223,211,0.35); line-height:1.6; font-family:JetBrains Mono,monospace;">'
                 f'Passwords in breach databases are loaded into automated credential stuffing tools '
                 f'and tried against millions of accounts. A count of {count:,} means this exact '
                 f'password has been seen that many times in real-world breaches.'
@@ -1160,19 +1173,19 @@ def render_validation_results(password):
 
     if not rows_html:
         rows_html = (
-            '<span style="color:#7878A0; font-size:0.78rem; '
+            '<span style="color:rgba(232,223,211,0.35); font-size:0.78rem; '
             'font-family:JetBrains Mono,monospace;">No rules evaluated.</span>'
         )
 
     st.markdown(
         _html(f"""
-        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">
-                <span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
+        <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #2A2420;">
+                <span style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
                 <div style="display:flex; gap:1.25rem;">
-                    <span style="font-size:0.6rem; color:#00E676; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2713; {len(passed)} passed</span>
-                    <span style="font-size:0.6rem; color:#FF1744; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {fail_count} failed</span>
-                    <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x25cb; {opt_count} optional</span>
+                    <span style="font-size:0.6rem; color:#5C9E6E; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2713; {len(passed)} passed</span>
+                    <span style="font-size:0.6rem; color:#C44040; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {fail_count} failed</span>
+                    <span style="font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x25cb; {opt_count} optional</span>
                 </div>
             </div>
             {rows_html}
@@ -1196,17 +1209,17 @@ def render_validation_results(password):
     if recs:
         items_html = "".join(
             f'<div style="display:flex; gap:0.8rem; margin:0.45rem 0;">'
-            f'<span style="color:#F5A623; font-size:0.68rem; flex-shrink:0; '
+            f'<span style="color:#D24D3E; font-size:0.68rem; flex-shrink:0; '
             f'font-family:JetBrains Mono,monospace; padding-top:2px;">&#8594;</span>'
-            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.5; '
+            f'<span style="color:#E8DFD3; font-size:0.78rem; line-height:1.5; '
             f'font-family:JetBrains Mono,monospace;">{_md_bold(rec)}</span>'
             f'</div>'
             for rec in recs
         )
         st.markdown(
             _html(f"""
-            <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; border-left:3px solid #F5A623; padding:1.25rem 1.5rem; margin:0.75rem 0;">
-                <div style="font-size:0.58rem; color:#F5A623; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Recommendations</div>
+            <div class="t-reveal" style="background:#1C1814; border:1px solid #352E28; border-left:3px solid #D24D3E; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+                <div style="font-size:0.58rem; color:#D24D3E; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Recommendations</div>
                 {items_html}
             </div>
             """),
@@ -1215,7 +1228,7 @@ def render_validation_results(password):
 
     # ── Deep Analysis ──────────────────────────────────────────────────────
     st.markdown(
-        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Deep Analysis</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
+        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#2A2420;"></div><span style="font-size:0.58rem; color:rgba(232,223,211,0.35); letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Deep Analysis</span><div style="flex:1; height:1px; background:#2A2420;"></div></div>'),
         unsafe_allow_html=True,
     )
 
@@ -1302,10 +1315,10 @@ st.markdown(
     '<div style="position:relative; height:1rem; '
     'margin:-0.5rem 0 0.75rem 0;">'
     '<span class="pv-left" style="position:absolute; width:100%; left:0; '
-    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:left;">'
+    'font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.1em; text-align:left;">'
     'YOUR PASSWORD IS NEVER SENT TO ANY SERVER OR STORED.</span>'
     '<span class="pv-right" style="position:absolute; width:100%; left:0; '
-    'font-size:0.6rem; color:#7878A0; letter-spacing:0.1em; text-align:left;">'
+    'font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.1em; text-align:left;">'
     'CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</span>'
     '</div>',
     unsafe_allow_html=True,
@@ -1326,9 +1339,9 @@ elif st.session_state.get("validation_done") and \
 
 st.markdown(
     '<div class="pv-footer" style="margin-top:3rem; padding-top:1.25rem; '
-    'border-top:1px solid #181830; text-align:center;">'
-    '<span style="color:#7878A0; font-size:0.62rem; letter-spacing:0.14em;">BUILT BY BEN MICKENS</span>'
-    '<span style="color:#7878A0; font-size:0.62rem; margin:0 0.75rem;">·</span>'
+    'border-top:1px solid #2A2420; text-align:center;">'
+    '<span style="color:rgba(232,223,211,0.25); font-size:0.62rem; letter-spacing:0.14em;">BUILT BY BEN MICKENS</span>'
+    '<span style="color:rgba(232,223,211,0.25); font-size:0.62rem; margin:0 0.75rem;">·</span>'
     '<a href="https://github.com/cyberpsyon/password-validator" target="_blank" '
     'style="font-size:0.62rem; letter-spacing:0.14em; transition:color 0.2s;">'
     '[ SOURCE: GITHUB ]'
