@@ -16,33 +16,42 @@ from password_validator import (
 )
 
 # -- Page config --
-st.set_page_config(page_title="Password Validator", page_icon="○", layout="centered")
-
-# ---------------------------------------------------------------------------
-# Palette — wabi-sabi / ensō
-# ---------------------------------------------------------------------------
-# A single vermilion accent against a warm near-black ground. Secondary hues
-# stay within the earth-pigment family (ochre, muted crimson, sage) so nothing
-# competes with the ensō and score.
+st.set_page_config(page_title="Password Validator", page_icon="\U0001f510", layout="centered")
 
 RATING_COLORS = {
-    "EXCELLENT": "#D24D3E",
-    "STRONG":    "#D24D3E",
-    "GOOD":      "#B08C5A",
-    "FAIR":      "#A67448",
-    "WEAK":      "#9B3F35",
+    "EXCELLENT": "#3DDC97",
+    "STRONG":    "#3DDC97",
+    "GOOD":      "#FFB020",
+    "FAIR":      "#FFB020",
+    "WEAK":      "#FF5577",
 }
 
-# (upper-bound-seconds, human label) — first entry the password beats wins.
-_TIER_LABELS = [
-    (60,          "instant"),
-    (3600,        "minutes"),
-    (86400,       "hours"),
-    (2592000,     "days"),
-    (31536000,    "months"),
-    (315360000,   "years"),
-    (3153600000,  "decades"),
-    (float("inf"), "centuries"),
+RATING_SHADOWS = {
+    "EXCELLENT": "0 0 18px rgba(61,220,151,0.35)",
+    "STRONG":    "0 0 18px rgba(61,220,151,0.35)",
+    "GOOD":      "0 0 18px rgba(255,176,32,0.35)",
+    "FAIR":      "0 0 18px rgba(255,176,32,0.35)",
+    "WEAK":      "0 0 18px rgba(255,85,119,0.35)",
+}
+
+# Gradient stop pairs for the score ring (start/end at same hue, two shades)
+RATING_GRADIENTS = {
+    "EXCELLENT": ("#3DDC97", "#A4F0CF"),
+    "STRONG":    ("#3DDC97", "#A4F0CF"),
+    "GOOD":      ("#FFB020", "#FFD980"),
+    "FAIR":      ("#FFB020", "#FFD980"),
+    "WEAK":      ("#FF5577", "#FF8FA8"),
+}
+
+_GAUGE_SEGMENTS = [
+    (0,          "Instant",   "#FF1744"),
+    (60,         "Minutes",   "#FF1744"),
+    (3600,       "Hours",     "#FF6D00"),
+    (86400,      "Days",      "#FF6D00"),
+    (2592000,    "Months",    "#FFD600"),
+    (31536000,   "Years",     "#FFD600"),
+    (315360000,  "Decades",   "#00E676"),
+    (3153600000, "Centuries", "#00897B"),
 ]
 
 _SEPARATORS = {
@@ -54,91 +63,87 @@ _SEPARATORS = {
 }
 
 _SEVERITY_COLORS = {
-    "critical": "#9B3F35",
-    "moderate": "#A67448",
-    "low":      "#B08C5A",
-    "none":     "rgba(232,223,211,0.35)",
+    "critical": "#FF1744",
+    "moderate": "#FF6D00",
+    "low":      "#F5A623",
+    "none":     "#7878A0",
 }
 
 _TAG_DISPLAY = {
-    "DICT":  "dictionary",
-    "KEY":   "keyboard",
-    "DATE":  "date",
-    "SEQ":   "sequence",
-    "RPT":   "repetition",
-    "BRUTE": "brute force",
+    "DICT":  "[DICT]",
+    "KEY":   "[KEY]",
+    "DATE":  "[DATE]",
+    "SEQ":   "[SEQ]",
+    "RPT":   "[RPT]",
+    "BRUTE": "[BRUTE]",
 }
-
-# Accent / safe / warn colors used inside the safety-tip prose
-_ACCENT = "#D24D3E"
-_OK     = "#7A8F65"
-_WARN   = "#9B3F35"
 
 _SAFETY_TIPS = [
     ("Use a unique password for every account",
-     f"When a company gets hacked, attackers take the stolen passwords and try "
-     f"them on other websites like your email, bank, and social media. If you "
-     f"use the <span style='color:{_WARN}'>same password everywhere</span>, "
-     f"one breach can compromise all of your accounts. Always use a "
-     f"<span style='color:{_OK}'>different password for each account</span>."),
+     "When a company gets hacked, attackers take the stolen passwords and try "
+     "them on other websites like your email, bank, and social media. If you "
+     "use the <span style='color:#FF1744;font-weight:700'>same password everywhere</span>, "
+     "one breach can compromise all of your accounts. Always use a "
+     "<span style='color:#00E676;font-weight:700'>different password for each account</span>."),
 
     ("Use a password manager",
-     f"Nobody can remember dozens of strong, unique passwords. A "
-     f"<span style='color:{_ACCENT}'>password manager</span> is an app "
-     f"that securely stores all of your passwords for you. You only need to remember "
-     f"<span style='color:{_OK}'>one master password</span>, and the manager fills in "
-     f"the rest. <a href='https://1password.com/' target='_blank' style='color:{_ACCENT}'>1Password</a> "
-     f"is the industry-leading option for individuals and teams."),
+     "Nobody can remember dozens of strong, unique passwords. A "
+     "<span style='color:#F5A623;font-weight:700'>password manager</span> is an app "
+     "that securely stores all of your passwords for you. You only need to remember "
+     "<span style='color:#00E676;font-weight:700'>one master password</span>, and the manager fills in "
+     "the rest. <a href='https://1password.com/' target='_blank' style='color:#F5A623'>1Password</a> "
+     "is the industry-leading option for individuals and teams."),
 
-    ("Enable multi-factor authentication",
-     f"<span style='color:{_ACCENT}'>Multi-factor authentication</span> adds another step "
-     f"when you log in, like a code from an app on your phone or a physical security key. Even if "
-     f"someone steals your password, they still cannot get into your account without that second step. "
-     f"<span style='color:{_OK}'>Turn on MFA everywhere it is available</span>, "
-     f"especially for email, banking, and work accounts. "
-     f"<span style='color:{_WARN}'>Avoid SMS-based MFA when possible.</span> "
-     f"Authenticator apps (like Authy or Google Authenticator) and hardware security keys "
-     f"(like <a href='https://www.yubico.com/get-yubikey' target='_blank' style='color:{_ACCENT}'>YubiKey</a>) "
-     f"are significantly harder to intercept or bypass."),
+    ("Enable multi-factor authentication (MFA)",
+     "<span style='color:#F5A623;font-weight:700'>Multi-factor authentication</span> adds another step "
+     "when you log in, like a code from an app on your phone or a physical security key. Even if "
+     "someone steals your password, they still cannot get into your account without that second step. "
+     "<span style='color:#00E676;font-weight:700'>Turn on MFA everywhere it is available</span>, "
+     "especially for email, banking, and work accounts. "
+     "<span style='color:#FF1744;font-weight:700'>Avoid SMS-based MFA when possible.</span> "
+     "Authenticator apps (like Authy or Google Authenticator) and hardware security keys "
+     "(like <a href='https://www.yubico.com/get-yubikey' target='_blank' style='color:#F5A623'>YubiKey</a>) "
+     "are significantly harder to intercept or bypass."),
 
     ("Longer passwords are stronger passwords",
-     f"A <span style='color:{_ACCENT}'>20-character passphrase</span> made of random words "
-     f"(like <span style='color:{_OK}'>&ldquo;correct-horse-battery-staple&rdquo;</span>) "
-     f"is both stronger and easier to type than a short, complicated password "
-     f"like <span style='color:{_WARN}'>&ldquo;P@s5w0rd!&rdquo;</span>. "
-     f"Aim for <span style='color:{_ACCENT}'>at least 15 characters</span>, but longer is always better."),
+     "A <span style='color:#F5A623;font-weight:700'>20-character passphrase</span> made of random words "
+     "(like <span style='color:#00E676;font-weight:700'>\"correct-horse-battery-staple\"</span>) "
+     "is both stronger and easier to type than a short, complicated password "
+     "like <span style='color:#FF1744;font-weight:700'>\"P@s5w0rd!\"</span>. "
+     "Aim for <span style='color:#F5A623;font-weight:700'>at least 15 characters</span>, but longer is always better."),
 
     ("Never share passwords over email or chat",
-     f"No legitimate company, IT department, or government agency will ever ask "
-     f"you for your password. If someone contacts you asking for your password, "
-     f"<span style='color:{_WARN}'>it is a scam</span>. Always type your password "
-     f"<span style='color:{_OK}'>directly</span> into the official website or app, "
-     f"<span style='color:{_WARN}'>never</span> into an email, text message, or phone call."),
+     "No legitimate company, IT department, or government agency will ever ask "
+     "you for your password. If someone contacts you asking for your password, "
+     "<span style='color:#FF1744;font-weight:700'>it is a scam</span>. Always type your password "
+     "<span style='color:#00E676;font-weight:700'>directly</span> into the official website or app, "
+     "<span style='color:#FF1744;font-weight:700'>never</span> into an email, text message, or phone call."),
 
     ("Watch for data breaches",
-     f"Data breaches happen regularly, and your information may be exposed "
-     f"without you knowing. Sign up for "
-     f"<span style='color:{_OK}'>free alerts</span> at "
-     f"<a href='https://haveibeenpwned.com' target='_blank' style='color:{_ACCENT}'>Have I Been Pwned</a> to "
-     f"get notified if your email appears in a breach. When you get an alert, "
-     f"<span style='color:{_OK}'>change the password</span> for that account immediately."),
+     "Data breaches happen regularly, and your information may be exposed "
+     "without you knowing. Sign up for "
+     "<span style='color:#00E676;font-weight:700'>free alerts</span> at "
+     "<a href='https://haveibeenpwned.com' target='_blank' style='color:#F5A623'>Have I Been Pwned</a> to "
+     "get notified if your email appears in a breach. When you get an alert, "
+     "<span style='color:#00E676;font-weight:700'>change the password</span> for that account immediately."),
 
     ("Change passwords that have been exposed",
-     f"If you find out that one of your passwords was part of a data breach, "
-     f"<span style='color:{_OK}'>stop using it right away</span> on every account where you used it. "
-     f"Attackers share stolen passwords widely, so a breached password is "
-     f"<span style='color:{_WARN}'>never safe to use again</span>, even if you change it slightly."),
+     "If you find out that one of your passwords was part of a data breach, "
+     "<span style='color:#00E676;font-weight:700'>stop using it right away</span> on every account where you used it. "
+     "Attackers share stolen passwords widely, so a breached password is "
+     "<span style='color:#FF1744;font-weight:700'>never safe to use again</span>, even if you change it slightly."),
 
     ("A high score does not mean your password is unbreakable",
-     f"Even if this tool rates your password as &ldquo;excellent&rdquo; with a crack time "
-     f"of centuries, <span style='color:{_WARN}'>no password is truly permanent</span>. "
-     f"Advances in technology, including "
-     f"<span style='color:{_ACCENT}'>quantum computing</span>, will make password cracking "
-     f"significantly faster in the future. "
-     f"<span style='color:{_OK}'>Combine strong passwords with MFA</span> and change a "
-     f"password only when you have reason to believe it has been compromised. "
-     f"Routine rotation tends to produce weaker, predictable passwords and is no longer recommended."),
+     "Even if this tool rates your password as \"Excellent\" with a crack time "
+     "of centuries, <span style='color:#FF1744;font-weight:700'>no password is truly permanent</span>. "
+     "Advances in technology, including "
+     "<span style='color:#F5A623;font-weight:700'>quantum computing</span>, will make password cracking "
+     "significantly faster in the future. "
+     "<span style='color:#00E676;font-weight:700'>Combine strong passwords with MFA</span> and change a "
+     "password only when you have reason to believe it has been compromised. "
+     "Routine rotation tends to produce weaker, predictable passwords and is no longer recommended."),
 ]
+
 
 
 # ---------------------------------------------------------------------------
@@ -146,9 +151,9 @@ _SAFETY_TIPS = [
 # ---------------------------------------------------------------------------
 
 def _md_bold(text: str) -> str:
-    """HTML-escape text, then render **bold** as a vermilion emphasis."""
+    """HTML-escape text, then render **bold** as <strong>."""
     text = html.escape(text)
-    return re.sub(r"\*\*(.+?)\*\*", r'<em style="color:#D24D3E; font-style:normal;">\1</em>', text)
+    return re.sub(r"\*\*(.+?)\*\*", r'<strong style="color:#F5A623;">\1</strong>', text)
 
 
 def _html(markup: str) -> str:
@@ -157,26 +162,60 @@ def _html(markup: str) -> str:
 
 
 def _format_guesses(n: float) -> str:
+    """Format a raw guess count into a human-readable string."""
     if n < 1_000:
         return f"{int(n)} guesses"
     if n < 1_000_000:
-        return f"{n / 1_000:.0f} thousand guesses"
+        return f"{n / 1_000:.0f}K guesses"
     if n < 1_000_000_000:
-        return f"{n / 1_000_000:.0f} million guesses"
+        return f"{n / 1_000_000:.0f}M guesses"
     if n < 1_000_000_000_000:
-        return f"{n / 1_000_000_000:.0f} billion guesses"
-    if n < 1_000_000_000_000_000:
-        return f"{n / 1_000_000_000_000:.0f} trillion guesses"
-    if n < 1_000_000_000_000_000_000:
-        return f"{n / 1_000_000_000_000_000:.0f} quadrillion guesses"
-    return f"{n / 1_000_000_000_000_000_000:.0f} quintillion guesses"
+        return f"{n / 1_000_000_000:.0f}B guesses"
+    return f"{n / 1_000_000_000_000:.0f}T guesses"
 
 
-def _tier_label(seconds: float) -> str:
-    for upper, label in _TIER_LABELS:
-        if seconds < upper:
-            return label
-    return "centuries"
+# -- Per-metric color tiers ------------------------------------------------
+# Each helper returns one of: "good", "mid", "bad", "unknown".
+# Color tokens for each tier are defined in CSS via .m-good / .m-mid / .m-bad.
+
+_TIER_COLORS = {
+    "good":    "#3DDC97",
+    "mid":     "#FFB020",
+    "bad":     "#FF5577",
+    "unknown": "#7878A0",
+}
+
+
+def _crack_time_tier(seconds: float) -> str:
+    if seconds < 3600:           # < 1 hour
+        return "bad"
+    if seconds < 31_536_000:     # < 1 year
+        return "mid"
+    return "good"
+
+
+def _breach_tier(hibp_count, hibp_unavailable: bool) -> str:
+    if hibp_unavailable:
+        return "unknown"
+    return "bad" if hibp_count else "good"
+
+
+def _length_tier(n: int) -> str:
+    if n < 12:
+        return "bad"
+    if n < MIN_LENGTH:  # 12–14
+        return "mid"
+    return "good"
+
+
+def _format_breach_count(count) -> str:
+    if count is None or count == 0:
+        return "Clean"
+    if count < 1_000:
+        return f"Pwned {count}×"
+    if count < 1_000_000:
+        return f"Pwned {count / 1_000:.1f}K×"
+    return f"Pwned {count / 1_000_000:.1f}M×"
 
 
 # ---------------------------------------------------------------------------
@@ -187,431 +226,356 @@ def inject_global_styles():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bg:            #14110E;
-            --washi:         #E8DFD3;
-            --washi-dim:     rgba(232, 223, 211, 0.35);
-            --washi-faint:   rgba(232, 223, 211, 0.14);
-            --washi-whisper: rgba(232, 223, 211, 0.06);
-            --vermilion:     #D24D3E;
-            --vermilion-dim: rgba(210, 77, 62, 0.10);
-            --ochre:         #B08C5A;
-            --amber-dim:     #A67448;
-            --crimson:       #9B3F35;
-            --sage:          #7A8F65;
+            --bg:          #0A1220;
+            --surface:     #141C2E;
+            --surface2:    #1A2238;
+            --border:      rgba(255,255,255,0.06);
+            --border2:     rgba(255,255,255,0.10);
+            --mint:        #3DDC97;
+            --mint-soft:   #A4F0CF;
+            --mint-dim:    rgba(61, 220, 151, 0.10);
+            --mint-glow:   rgba(61, 220, 151, 0.25);
+            --text:        #FFFFFF;
+            --text-body:   #C9D2E2;
+            --text-dim:    #6B7488;
+            --good:        #3DDC97;
+            --mid:         #FFB020;
+            --bad:         #FF5577;
         }
 
-        /* ── Type: mincho is the default body voice, mono is reserved for data ── */
+        /* ── Global typography ── */
         html, body, [class^="st"], [class*=" st"] {
-            font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         .pv-mono, .pv-mono * {
-            font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', monospace !important;
+            font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace !important;
         }
 
-        /* ── Meditative dark ground: warm near-black with a whisper of paper grain ── */
+        /* ── App background: flat navy + subtle dot grid ── */
         .stApp {
             background-color: var(--bg) !important;
-            background-image:
-                radial-gradient(ellipse 80% 60% at 20% 0%, rgba(210,77,62,0.025), transparent 70%),
-                radial-gradient(ellipse 60% 50% at 100% 100%, rgba(176,140,90,0.02), transparent 70%);
+            background-image: radial-gradient(circle at center, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 24px 24px;
             background-attachment: fixed;
         }
 
         .block-container {
-            padding-top: 3.5rem !important;
-            padding-bottom: 6rem !important;
-            max-width: 640px !important;
+            padding-top: 3rem !important;
+            padding-bottom: 5rem !important;
+            max-width: 760px !important;
         }
 
-        /* ── Typography defaults ── */
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--washi) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-weight: 500 !important;
-            letter-spacing: 0 !important;
-            text-transform: none !important;
-        }
-        p, li, span, div {
-            color: var(--washi);
-        }
-        a {
-            color: var(--vermilion) !important;
-            text-decoration: none !important;
-            border-bottom: 1px solid rgba(210,77,62,0.25) !important;
-            transition: border-color 0.3s ease !important;
-        }
-        a:hover { border-bottom-color: var(--vermilion) !important; }
+        /* ── Typography ── */
+        h1, h2, h3, h4, h5, h6 { color: var(--text) !important; letter-spacing: -0.02em !important; }
+        p, li { color: var(--text-body) !important; }
+        a { color: var(--mint) !important; text-decoration: none; }
+        a:hover { color: var(--mint-soft) !important; }
 
-        /* ── Password input: no box, just a breathing underline ── */
+        /* ── Text input: pill shape, solid fill, no thin border ── */
         .stTextInput > div > div {
-            background: transparent !important;
+            background: var(--surface) !important;
             border: 0 !important;
-            border-bottom: 1px solid var(--washi-faint) !important;
-            border-radius: 0 !important;
-            transition: border-color 0.5s ease !important;
-            box-shadow: none !important;
+            border-radius: 999px !important;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.3) !important;
+            transition: box-shadow 0.2s !important;
         }
         .stTextInput > div > div:focus-within {
-            border-bottom-color: var(--vermilion) !important;
-            box-shadow: none !important;
+            box-shadow: 0 0 0 2px var(--mint), 0 8px 24px rgba(0,0,0,0.4) !important;
         }
         .stTextInput input {
             background: transparent !important;
-            color: var(--washi) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-size: 1.15rem !important;
-            letter-spacing: 0.02em !important;
-            padding: 0.9rem 0 !important;
-            caret-color: var(--vermilion) !important;
-        }
-        .stTextInput label {
-            color: var(--washi-dim) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
-            font-size: 0.88rem !important;
-            letter-spacing: 0 !important;
-            text-transform: none !important;
-            margin-bottom: 0.35rem !important;
-            font-weight: 400 !important;
-        }
-
-        /* ── Buttons: restrained hairline that warms to vermilion on hover ── */
-        .stButton > button {
-            background: transparent !important;
-            border: 1px solid var(--washi-faint) !important;
-            border-radius: 0 !important;
-            color: var(--washi) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
-            font-weight: 400 !important;
-            font-size: 1.0rem !important;
-            letter-spacing: 0.03em !important;
-            text-transform: none !important;
-            padding: 0.8rem 1.5rem !important;
-            box-shadow: none !important;
-            transition: border-color 0.55s ease, color 0.55s ease,
-                        background-color 0.55s ease, letter-spacing 0.55s ease !important;
-        }
-        .stButton > button p,
-        .stButton > button span,
-        .stButton > button div { color: inherit !important; transition: color 0.55s ease !important; }
-        .stButton > button:hover {
-            border-color: var(--vermilion) !important;
-            color: var(--vermilion) !important;
-            background: var(--vermilion-dim) !important;
-            letter-spacing: 0.08em !important;
-        }
-        .stButton > button:active { background: var(--vermilion-dim) !important; }
-        .stButton > button:focus { box-shadow: none !important; }
-
-        /* ── Borderless disclosure (expanders): title line only, no card ── */
-        details {
-            background: transparent !important;
+            color: var(--text) !important;
+            font-size: 0.95rem !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            letter-spacing: 0.04em !important;
+            caret-color: var(--mint) !important;
+            padding: 0.95rem 1.5rem !important;
             border: 0 !important;
-            border-top: 1px solid var(--washi-whisper) !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
+        }
+        .stTextInput input::placeholder { color: #4A5468 !important; }
+        .stTextInput label {
+            color: var(--text-body) !important;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.04em !important;
+            text-transform: none !important;
+            font-weight: 500 !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* ── Buttons: filled mint pill ── */
+        .stButton > button {
+            background: var(--mint) !important;
+            color: #0A1220 !important;
+            border: 0 !important;
+            border-radius: 999px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 0.02em !important;
+            text-transform: none !important;
+            padding: 0.8rem 1.75rem !important;
+            box-shadow: 0 4px 14px rgba(61, 220, 151, 0.25), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s !important;
+        }
+        .stButton > button p, .stButton > button span, .stButton > button div {
+            color: inherit !important;
+        }
+        .stButton > button:hover {
+            background: var(--mint-soft) !important;
+            color: #0A1220 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(61, 220, 151, 0.35), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+        }
+        .stButton > button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(61, 220, 151, 0.25), inset 0 1px 0 rgba(255,255,255,0.25) !important;
+        }
+
+        /* ── Progress bar ── */
+        .stProgress > div > div {
+            background: var(--surface) !important;
+            border-radius: 999px !important;
+            height: 8px !important;
+            overflow: hidden !important;
+        }
+        .stProgress > div > div > div > div {
+            border-radius: 999px !important;
+            transition: width 0.9s cubic-bezier(0.4,0,0.2,1) !important;
+        }
+
+        /* ── Expanders ── */
+        details {
+            background: var(--surface) !important;
+            border: 0 !important;
+            border-radius: 14px !important;
+            margin-bottom: 0.5rem !important;
+            overflow: hidden;
         }
         details summary {
             display: flex !important;
             align-items: center !important;
             list-style: none !important;
-            color: var(--washi) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
-            font-weight: 400 !important;
-            font-size: 0.98rem !important;
+            color: var(--text) !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
             letter-spacing: 0 !important;
             text-transform: none !important;
-            padding: 1rem 0 !important;
+            padding: 1rem 1.25rem !important;
             cursor: pointer !important;
-            transition: color 0.4s ease !important;
+            transition: color 0.15s, background 0.15s !important;
         }
         details summary::-webkit-details-marker { display: none !important; }
-        /* Verified Streamlit DOM: hide the icon ligature span, keep the label div. */
+        /* Hide Streamlit's built-in icon span (Material ligature breaks under non-mono font) */
         details summary > span > span,
         details summary > span > svg { display: none !important; }
+        /* Custom toggle indicator */
         details summary::after {
-            content: '○' !important;
-            color: var(--washi-dim) !important;
-            font-size: 0.8rem !important;
+            content: '+' !important;
+            color: var(--mint) !important;
+            font-size: 1.2rem !important;
+            font-weight: 400 !important;
             flex-shrink: 0 !important;
-            margin-left: auto !important;
-            padding-left: 1rem !important;
-            transition: color 0.4s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1) !important;
+            transition: transform 0.2s ease !important;
             display: inline-block !important;
-            font-family: 'Shippori Mincho', serif !important;
-        }
-        details summary:hover { color: var(--vermilion) !important; }
-        details summary:hover::after { color: var(--vermilion) !important; }
-        details[open] summary {
-            color: var(--vermilion) !important;
-            padding-bottom: 0.5rem !important;
+            margin-left: 0.75rem !important;
         }
         details[open] summary::after {
-            content: '●' !important;
-            color: var(--vermilion) !important;
-            transform: rotate(180deg);
+            transform: rotate(45deg) !important;
         }
-        .streamlit-expanderContent,
-        details > div:not(summary) {
-            background: transparent !important;
-            padding: 0.25rem 0 1.5rem 0 !important;
-            border: 0 !important;
+        details summary:hover { color: var(--mint) !important; }
+        details[open] summary {
+            color: var(--mint) !important;
+            border-bottom: 1px solid var(--border) !important;
         }
-
-        /* Sub-expanders (inside safety tips) get a lighter rule */
-        details details { border-top-color: var(--washi-whisper) !important; }
-
-        /* ── Slider / selectbox / checkbox: light touch ── */
-        [data-baseweb="slider"] [role="slider"] {
-            background: var(--vermilion) !important;
-            border-color: var(--vermilion) !important;
-            box-shadow: none !important;
-        }
-        [data-baseweb="slider"] [data-testid="stTickBar"] {
-            color: var(--washi-dim) !important;
-            font-family: 'JetBrains Mono', monospace !important;
-            font-size: 0.7rem !important;
+        .streamlit-expanderContent {
+            background: var(--surface) !important;
+            padding: 1.25rem !important;
         }
 
+        /* ── Slider ── */
+        [data-baseweb="slider"] [data-testid="stTickBar"] { color: var(--text-dim) !important; }
+
+        /* ── Selectbox ── */
         [data-baseweb="select"] > div {
-            background: transparent !important;
+            background: var(--surface2) !important;
             border: 0 !important;
-            border-bottom: 1px solid var(--washi-faint) !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
+            border-radius: 10px !important;
         }
-        [data-baseweb="select"] > div:hover { border-bottom-color: var(--vermilion) !important; }
-        [data-baseweb="select"] span,
-        [data-baseweb="select"] div { color: var(--washi) !important; font-family: 'Shippori Mincho', serif !important; }
+        [data-baseweb="select"] span, [data-baseweb="select"] div { color: var(--text) !important; }
 
-        .stCheckbox label p,
-        .stCheckbox label span {
-            color: var(--washi) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-size: 0.9rem !important;
-            font-style: italic !important;
-        }
-        .stCheckbox [data-baseweb="checkbox"] > span:first-child {
-            border-color: var(--washi-faint) !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-        }
-        .stCheckbox [data-baseweb="checkbox"][aria-checked="true"] > span:first-child,
-        .stCheckbox [data-baseweb="checkbox"] > span[data-checked="true"] {
-            background: var(--vermilion) !important;
-            border-color: var(--vermilion) !important;
-        }
-
-        /* Labels above sliders / selects */
-        .stSlider label,
-        .stSelectbox label {
-            color: var(--washi-dim) !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
+        /* ── Checkbox ── */
+        .stCheckbox label p, .stCheckbox label span {
+            color: var(--text-body) !important;
             font-size: 0.85rem !important;
-            letter-spacing: 0 !important;
-            text-transform: none !important;
         }
 
-        /* ── Divider / hr: hair-thin washi line ── */
-        hr { border-color: var(--washi-whisper) !important; opacity: 1 !important; margin: 2rem 0 !important; }
+        /* ── Divider ── */
+        hr { border-color: var(--border) !important; opacity: 1 !important; margin: 1.5rem 0 !important; }
 
-        /* ── Alerts: a single left rule, nothing else ── */
+        /* ── Alerts ── */
         .stAlert {
-            background: transparent !important;
+            background: var(--surface) !important;
+            border-radius: 14px !important;
             border: 0 !important;
-            border-left: 1px solid var(--vermilion) !important;
-            border-radius: 0 !important;
-            padding: 0.4rem 0 0.4rem 1rem !important;
         }
-        .stAlert > div {
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
-            font-size: 0.92rem !important;
-            color: var(--washi) !important;
-        }
+        .stAlert > div { font-size: 0.85rem !important; color: var(--text) !important; }
 
-        /* ── Code / tables ── */
-        pre, .stCode > div {
-            background: transparent !important;
+        /* ── Code blocks ── */
+        .stCode > div, pre {
+            background: var(--surface2) !important;
             border: 0 !important;
-            border-left: 1px solid var(--washi-whisper) !important;
-            border-radius: 0 !important;
-            padding-left: 1rem !important;
+            border-radius: 10px !important;
         }
-        code { color: var(--sage) !important; background: transparent !important; font-family: 'JetBrains Mono', monospace !important; font-size: 0.86em !important; }
+        code { color: var(--mint) !important; background: transparent !important; font-family: 'JetBrains Mono', monospace !important; }
 
-        table { border-collapse: collapse !important; width: 100% !important; margin: 0.5rem 0 1rem !important; }
+        /* ── Tables (kept for legacy sections) ── */
+        table { border-collapse: collapse !important; width: 100% !important; }
         th {
-            background: transparent !important;
-            color: var(--washi-dim) !important;
+            background: var(--surface2) !important;
+            color: var(--mint) !important;
             border: 0 !important;
-            border-bottom: 1px solid var(--washi-whisper) !important;
-            padding: 0.6rem 0.75rem !important;
-            font-family: 'Shippori Mincho', serif !important;
-            font-style: italic !important;
-            font-weight: 400 !important;
-            font-size: 0.82rem !important;
+            padding: 0.6rem 0.85rem !important;
+            font-size: 0.7rem !important;
+            letter-spacing: 0.04em !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
             text-align: left !important;
-            letter-spacing: 0 !important;
-            text-transform: none !important;
         }
         td {
-            background: transparent !important;
-            color: var(--washi) !important;
-            border: 0 !important;
-            border-bottom: 1px solid var(--washi-whisper) !important;
-            padding: 0.55rem 0.75rem !important;
-            font-size: 0.9rem !important;
-            font-family: 'Shippori Mincho', serif !important;
+            background: var(--surface) !important;
+            color: var(--text-body) !important;
+            border-top: 1px solid var(--border) !important;
+            padding: 0.6rem 0.85rem !important;
+            font-size: 0.85rem !important;
         }
-        td code { font-size: 0.82rem !important; }
+        td a { color: var(--mint) !important; }
 
         /* ── Spinner ── */
-        .stSpinner > div { border-top-color: var(--vermilion) !important; }
+        .stSpinner > div { border-top-color: var(--mint) !important; }
 
-        /* ── Reveal: a soft rise ── */
-        @keyframes pvRise {
-            from { opacity: 0; transform: translateY(6px); }
+        /* ── Fade-in animation ── */
+        @keyframes pvReveal {
+            from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .pv-reveal { animation: pvRise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both; }
-        .pv-reveal-1 { animation-delay: 0.15s; }
-        .pv-reveal-2 { animation-delay: 0.40s; }
-        .pv-reveal-3 { animation-delay: 0.70s; }
-        .pv-reveal-4 { animation-delay: 1.00s; }
+        .t-reveal { animation: pvReveal 0.35s ease-out forwards; }
 
-        /* ── Input disclaimer cycling (preserved exactly per design brief) ── */
-        @keyframes pvLeft {
-            0%, 35%  { opacity: 1; }
-            40%      { opacity: 0; }
-            95%      { opacity: 0; }
-            100%     { opacity: 1; }
+        /* ── Result row color coding (kept for legacy rule analysis section) ── */
+        .pv-row-pass {
+            background: rgba(61, 220, 151, 0.06);
+            border-left: 2px solid var(--good);
+            padding-left: 0.7rem;
+            margin-left: -0.7rem;
+            border-radius: 0 6px 6px 0;
         }
-        @keyframes pvRight {
-            0%, 45%  { opacity: 0; }
-            50%      { opacity: 1; }
-            80%      { opacity: 1; }
-            85%      { opacity: 0; }
-            100%     { opacity: 0; }
+        .pv-row-fail {
+            background: rgba(255, 85, 119, 0.06);
+            border-left: 2px solid var(--bad);
+            padding-left: 0.7rem;
+            margin-left: -0.7rem;
+            border-radius: 0 6px 6px 0;
         }
-        .pv-left  { animation: pvLeft  10s linear infinite; }
-        .pv-right { animation: pvRight 10s linear infinite; }
+        .pv-row-warn {
+            background: rgba(255, 176, 32, 0.07);
+            border-left: 2px solid var(--mid);
+            padding-left: 0.7rem;
+            margin-left: -0.7rem;
+            border-radius: 0 6px 6px 0;
+        }
+        .pv-row-opt {
+            background: rgba(255, 255, 255, 0.025);
+            border-left: 2px solid var(--text-dim);
+            padding-left: 0.7rem;
+            margin-left: -0.7rem;
+            border-radius: 0 6px 6px 0;
+        }
 
-        /* ── Sparse metric grid ── */
-        .pv-metrics {
+        /* ── Score ring + metrics ── */
+        .pv-result {
+            background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+            border-radius: 22px;
+            padding: 2rem 2rem 1.75rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.05), 0 20px 40px rgba(0,0,0,0.35);
             display: grid;
-            grid-template-columns: auto 1fr;
-            column-gap: 2.5rem;
-            row-gap: 0.7rem;
-            max-width: 360px;
-            margin: 2.75rem auto 1rem auto;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            align-items: center;
         }
-        .pv-label {
-            font-family: 'Shippori Mincho', serif;
-            font-style: italic;
-            color: var(--washi-dim);
-            font-size: 0.92rem;
-            text-align: right;
-            white-space: nowrap;
+        .pv-result .ring-wrap { position: relative; width: 200px; height: 200px; }
+        .pv-result .ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .pv-result .ring-bg { fill: none; stroke: var(--surface); stroke-width: 14; }
+        .pv-result .ring-fg { fill: none; stroke-width: 14; stroke-linecap: round; stroke-dasharray: 565.48; }
+        .pv-result .ring-center {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
-        .pv-value {
+        .pv-result .ring-center .num {
+            font-size: 3.2rem; font-weight: 700;
+            letter-spacing: -0.04em; line-height: 1;
+            color: var(--text);
+        }
+        .pv-result .ring-center .num .of {
+            font-size: 1rem; color: var(--text-dim); font-weight: 500;
+        }
+        .pv-result .ring-center .badge {
+            font-size: 0.65rem; letter-spacing: 0.18em;
+            text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+            font-weight: 800; margin-top: 0.5rem;
+        }
+        .pv-result .breakdown {
+            display: flex; flex-direction: column; gap: 0.65rem;
+        }
+        .pv-result .breakdown .row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .pv-result .breakdown .row:last-child { border-bottom: 0; padding-bottom: 0; }
+        .pv-result .breakdown .lbl-wrap { display: flex; align-items: center; gap: 0.6rem; }
+        .pv-result .breakdown .dot {
+            width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+        }
+        .pv-result .breakdown .lbl {
             font-family: 'JetBrains Mono', monospace;
-            color: var(--washi);
-            font-size: 0.88rem;
-            letter-spacing: 0.02em;
-            font-weight: 400;
+            font-size: 0.7rem; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--text);
+            font-weight: 700;
+        }
+        .pv-result .breakdown .val {
+            font-size: 0.95rem; font-weight: 600;
         }
 
-        /* ── Rule lines ── */
-        .pv-rule {
-            display: flex;
-            gap: 1rem;
-            align-items: baseline;
-            padding: 0.42rem 0;
-            max-width: 560px;
-            margin: 0 auto;
+        @media (max-width: 600px) {
+            .pv-result {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+            }
+            .pv-result .breakdown { width: 100%; max-width: 280px; }
         }
-        .pv-rule-mark {
-            font-family: 'Shippori Mincho', serif;
-            font-size: 1.1rem;
-            width: 1.1rem;
+
+        /* ── Empty-state hint ── */
+        .pv-empty-hint {
             text-align: center;
-            flex-shrink: 0;
-            line-height: 1.3;
-        }
-        .pv-rule-text {
-            color: var(--washi);
-            font-family: 'Shippori Mincho', serif;
-            font-size: 0.94rem;
-            line-height: 1.55;
-        }
-        .pv-rule-pass .pv-rule-mark { color: var(--sage); }
-        .pv-rule-fail .pv-rule-mark { color: var(--crimson); }
-        .pv-rule-warn .pv-rule-mark { color: var(--vermilion); }
-        .pv-rule-opt  .pv-rule-mark { color: var(--washi-dim); }
-        .pv-rule-opt  .pv-rule-text { color: var(--washi-dim); }
-
-        /* ── Soft summary block for attacker breakdown / policy / report ── */
-        .pv-soft-head {
-            font-family: 'Shippori Mincho', serif;
-            font-style: italic;
-            color: var(--washi-dim);
-            font-size: 0.95rem;
-            margin: 0 0 1rem 0;
-        }
-        .pv-soft-row {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 1.25rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--washi-whisper);
-            align-items: baseline;
-        }
-        .pv-soft-row:last-child { border-bottom: 0; }
-        .pv-soft-k {
-            font-family: 'Shippori Mincho', serif;
-            font-style: italic;
-            color: var(--washi-dim);
-            font-size: 0.88rem;
-            white-space: nowrap;
-        }
-        .pv-soft-v {
+            margin: 2rem 0 0;
             font-family: 'JetBrains Mono', monospace;
-            color: var(--washi);
-            font-size: 0.85rem;
-            letter-spacing: 0.01em;
-        }
-
-        /* ── Section whisper: an italic lowercase label between sections ── */
-        .pv-section {
-            text-align: center;
-            margin: 3rem 0 1.5rem;
-            color: var(--washi-dim);
-            font-family: 'Shippori Mincho', serif;
-            font-style: italic;
-            font-size: 0.92rem;
-            letter-spacing: 0;
-        }
-        .pv-section-mark {
-            display: block;
-            color: var(--washi-faint);
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            font-family: 'Shippori Mincho', serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--mint);
         }
 
         /* ── Scrollbar ── */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--washi-whisper); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--vermilion); }
+        ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 999px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--mint); }
 
         /* ── Hide Streamlit chrome ── */
         #MainMenu { visibility: hidden; }
@@ -619,22 +583,8 @@ def inject_global_styles():
         header    { visibility: hidden; }
 
         /* ── Footer ── */
-        .pv-footer {
-            margin-top: 5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--washi-whisper);
-            text-align: center;
-        }
-        .pv-footer span,
-        .pv-footer a {
-            color: var(--washi-dim) !important;
-            font-family: 'Shippori Mincho', serif;
-            font-style: italic;
-            font-size: 0.82rem;
-            border-bottom: 0 !important;
-            transition: color 0.4s ease !important;
-        }
-        .pv-footer a:hover { color: var(--vermilion) !important; }
+        .pv-footer a { color: var(--text-dim) !important; }
+        .pv-footer a:hover { color: var(--mint) !important; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -648,17 +598,14 @@ def inject_global_styles():
 def render_header():
     st.markdown(
         _html("""
-        <div style="margin-bottom: 2.5rem;">
-            <div style="font-family:'Shippori Mincho', serif; color:#E8DFD3;
-                        font-size:2.4rem; font-weight:500; line-height:1.1;
-                        letter-spacing:-0.005em;">
-                Password Validator
-            </div>
-            <div style="font-family:'Shippori Mincho', serif; font-style:italic;
-                        color:rgba(232,223,211,0.35); font-size:0.95rem;
-                        margin-top:0.55rem; line-height:1.4;">
-                a quiet measure of strength
-            </div>
+        <div style="text-align:center; margin: 0 auto 2rem; max-width:640px;">
+            <h1 style="font-family:'Inter',sans-serif; font-size:2.75rem; font-weight:700; line-height:1.05; letter-spacing:-0.03em; color:#FFFFFF; margin:0 0 1rem 0;">
+                How strong is your <span style="color:#3DDC97;">password</span>?
+            </h1>
+            <p style="font-family:'Inter',sans-serif; font-size:0.95rem; color:#C9D2E2; line-height:1.6; max-width:480px; margin: 0 auto;">
+                An audit against 850M breached passwords and modern cracking benchmarks.
+                No accounts, no logging, no storage.
+            </p>
         </div>
         """),
         unsafe_allow_html=True,
@@ -666,94 +613,49 @@ def render_header():
 
 
 # ---------------------------------------------------------------------------
-# Ensō hero + sparse metrics (replaces card + gauge)
+# Threat gauge
 # ---------------------------------------------------------------------------
 
-def render_enso_hero(score, max_score, rating, color, shadow=None):
-    """Big ensō arc with the score centered inside and an italic rating below."""
-    score_pct = min(score / max_score * 100, 100) if max_score else 0
-    offset    = 100 - score_pct  # stroke-dashoffset target value
+def _gauge_segment_index(seconds):
+    """Return the index of the segment this crack time falls into."""
+    for i, (threshold, _, _) in enumerate(_GAUGE_SEGMENTS):
+        if i + 1 < len(_GAUGE_SEGMENTS) and seconds < _GAUGE_SEGMENTS[i + 1][0]:
+            return i
+    return len(_GAUGE_SEGMENTS) - 1
+
+
+def render_threat_gauge(crack_time_display, crack_seconds):
+    """Render a segmented threat gauge for crack time."""
+    seg_idx = _gauge_segment_index(crack_seconds)
+    tier_color = _GAUGE_SEGMENTS[seg_idx][2]
+    total = len(_GAUGE_SEGMENTS)
+
+    segments_html = ""
+    for i, (_, label, color) in enumerate(_GAUGE_SEGMENTS):
+        width_pct = 100 / total
+        opacity = "1.0" if i <= seg_idx else "0.11"
+        segments_html += (
+            f'<div title="{html.escape(label)}" style="'
+            f'width:{width_pct:.2f}%; height:100%; '
+            f'background:{color}; opacity:{opacity}; '
+            f'display:inline-block; border-right:2px solid #06060C;'
+            f'"></div>'
+        )
 
     st.markdown(
         _html(f"""
-        <div class="pv-reveal" style="position:relative; width:100%; max-width:320px;
-                    aspect-ratio:1; margin:2.5rem auto 0.5rem auto;">
-            <svg viewBox="0 0 240 240" style="width:100%; height:100%; overflow:visible; display:block;">
-                <defs>
-                    <filter id="pvBrush" x="-6%" y="-6%" width="112%" height="112%">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed="7"/>
-                        <feDisplacementMap in="SourceGraphic" scale="1.6"/>
-                    </filter>
-                </defs>
-                <g transform="rotate(-95 120 120)">
-                    <path d="M 120 22 A 98 98 0 1 1 87 29"
-                          fill="none"
-                          stroke="rgba(232,223,211,0.06)"
-                          stroke-width="3.5"
-                          stroke-linecap="round"/>
-                    <path id="pv-enso-stroke"
-                          d="M 120 22 A 98 98 0 1 1 87 29"
-                          fill="none"
-                          stroke="{color}"
-                          stroke-width="4"
-                          stroke-linecap="round"
-                          pathLength="100"
-                          stroke-dasharray="100"
-                          stroke-dashoffset="100"
-                          data-target-offset="{offset:.2f}"
-                          filter="url(#pvBrush)"
-                          style="transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1);"/>
-                </g>
-            </svg>
-            <div style="position:absolute; inset:0;
-                        display:flex; flex-direction:column;
-                        justify-content:center; align-items:center;
-                        pointer-events:none;">
-                <div style="font-family:'Shippori Mincho', serif;
-                            font-weight:500;
-                            font-size:5.25rem;
-                            color:{color};
-                            line-height:1;
-                            letter-spacing:-0.02em;">
-                    <span id="pv-score" data-target="{int(score)}">0</span>
-                </div>
-                <div style="font-family:'Shippori Mincho', serif; font-style:italic;
-                            color:rgba(232,223,211,0.35); font-size:0.8rem;
-                            margin-top:0.55rem; letter-spacing:0;">
-                    out of one hundred
-                </div>
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.8rem;">
+                <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Estimated Crack Time</span>
+                <span style="font-size:1.3rem; font-weight:800; color:{tier_color}; letter-spacing:0.06em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">{html.escape(crack_time_display)}</span>
             </div>
-        </div>
-        <div id="pv-rating" class="pv-reveal"
-             style="text-align:center;
-                    font-family:'Shippori Mincho', serif;
-                    font-style:italic;
-                    color:{color};
-                    font-size:1.55rem;
-                    margin-top:0.9rem;
-                    letter-spacing:0.02em;
-                    opacity:0;
-                    transition:opacity 0.9s ease;">
-            {html.escape(rating.lower())}
-        </div>
-        """),
-        unsafe_allow_html=True,
-    )
-
-
-def render_sparse_metrics(crack_time, crack_seconds, entropy_bits, guesses):
-    tier = _tier_label(crack_seconds)
-    st.markdown(
-        _html(f"""
-        <div class="pv-metrics pv-reveal pv-reveal-1">
-            <span class="pv-label">crack time</span>
-            <span class="pv-value">{html.escape(crack_time)}</span>
-            <span class="pv-label">resistance tier</span>
-            <span class="pv-value">{html.escape(tier)}</span>
-            <span class="pv-label">entropy</span>
-            <span class="pv-value">{entropy_bits:.1f} bits</span>
-            <span class="pv-label">search space</span>
-            <span class="pv-value">~{_format_guesses(guesses)}</span>
+            <div style="width:100%; height:1.35rem; display:flex; overflow:hidden;">
+                {segments_html}
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:0.4rem;">
+                <span style="font-size:0.56rem; color:#FF1744; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">&#8592; Instant</span>
+                <span style="font-size:0.56rem; color:#00897B; letter-spacing:0.1em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Centuries &#8594;</span>
+            </div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -765,56 +667,41 @@ def render_sparse_metrics(crack_time, crack_seconds, entropy_bits, guesses):
 # ---------------------------------------------------------------------------
 
 def _render_copy_output(value: str) -> None:
-    """Render a quiet output line with a single-word copy link via iframe."""
+    """Render a code-style output div with a working copy button via iframe."""
     import json
     js_value = html.escape(json.dumps(value))  # &quot; survives the onclick attribute
     components.html(
         f"""
         <style>
-        * {{ margin:0; padding:0; box-sizing:border-box; }}
+        * {{ margin:0; padding:0; box-sizing:border-box; font-family:'JetBrains Mono',monospace; }}
         body {{ background:transparent; }}
-        #wrap {{
-            display:flex; align-items:baseline;
-            gap:1rem;
-            padding: 0.75rem 0 0 0;
-            border-top: 1px solid rgba(232,223,211,0.06);
-            margin-top: 0.75rem;
-        }}
+        #wrap {{ display:flex; align-items:stretch; }}
         #out {{
-            flex:1;
-            background:transparent;
-            padding:0.35rem 0;
-            font-family:'JetBrains Mono', monospace;
-            font-size:0.95rem;
-            color:#B08C5A;
-            letter-spacing:0.02em;
-            word-break:break-all;
-            user-select:all;
+            flex:1; background:#111120; border:1px solid #222240;
+            padding:0.75rem 1rem; font-size:0.9rem; color:#00E676;
+            letter-spacing:0.08em; word-break:break-all; user-select:all;
         }}
         #btn {{
-            background:transparent; border:0;
-            color:rgba(232,223,211,0.35);
-            font-family:'Shippori Mincho', serif;
-            font-style:italic;
-            font-size:0.88rem;
-            cursor:pointer;
-            white-space:nowrap;
+            background:transparent; border:1px solid #222240; border-left:0;
+            color:#F5A623; font-size:0.65rem; letter-spacing:0.15em;
+            text-transform:uppercase; padding:0 0.9rem; cursor:pointer;
+            white-space:nowrap; display:flex; align-items:center;
             user-select:none; outline:none;
-            transition: color 0.35s ease;
         }}
-        #btn:hover {{ color:#D24D3E; }}
+        #btn:hover {{ background:rgba(245,166,35,0.08); }}
         #btn:focus {{ outline:none; }}
         </style>
         <div id="wrap">
             <div id="out">{html.escape(value)}</div>
-            <div id="btn" onclick="navigator.clipboard.writeText({js_value});this.textContent='copied';setTimeout(()=>this.textContent='copy',2000);">copy</div>
+            <div id="btn" onclick="navigator.clipboard.writeText({js_value});this.textContent='✓';setTimeout(()=>this.textContent='Copy',2000);">Copy</div>
         </div>
         """,
-        height=64,
+        height=52,
     )
 
 
 def render_generator_panel():
+    """Password generator UI inside an expander."""
     def _on_generate():
         st.session_state["pw_gen_open"] = True
         generated = generate_password(
@@ -843,7 +730,7 @@ def render_generator_panel():
         with gc4:
             st.checkbox("Special", value=True, key="gen_special")
 
-        st.button("Generate", on_click=_on_generate, key="btn_gen_pw")
+        st.button("Generate", on_click=_on_generate)
         if st.session_state.get("pw_gen_error"):
             st.warning("Select at least one character set.")
 
@@ -852,6 +739,7 @@ def render_generator_panel():
 
 
 def render_passphrase_panel():
+    """Passphrase generator UI inside an expander."""
     def _on_generate():
         st.session_state["pp_gen_open"] = True
         passphrase = generate_passphrase(
@@ -882,7 +770,7 @@ def render_passphrase_panel():
         with pc4:
             st.checkbox("Special", value=False, key="pp_special")
 
-        st.button("Generate passphrase", on_click=_on_generate, key="btn_gen_pp")
+        st.button("Generate Passphrase", on_click=_on_generate)
         if st.session_state.get("pp_gen_error"):
             st.error("Wordlist not found. Ensure eff_wordlist.txt is in the project directory.")
 
@@ -895,35 +783,36 @@ def render_passphrase_panel():
 # ---------------------------------------------------------------------------
 
 def render_safety_tips_panel():
-    with st.expander("Safety tips"):
+    """Render password safety tips as collapsible sub-expanders."""
+    with st.expander("Safety Tips"):
         st.markdown(
-            '<p style="color:rgba(232,223,211,0.35); font-family:\'Shippori Mincho\',serif; '
-            'font-style:italic; font-size:0.92rem; margin-bottom:1.25rem;">'
-            "Small habits, compounded. Open any line to read more.</p>",
+            '<p style="color:#7878A0; font-size:0.76rem; margin-bottom:1rem;">'
+            "Follow these tips to keep your accounts safe. "
+            "Click on any tip to learn more.</p>",
             unsafe_allow_html=True,
         )
         for title, body in _SAFETY_TIPS:
             with st.expander(title):
                 st.markdown(body, unsafe_allow_html=True)
         st.markdown(
-            '<p style="color:rgba(232,223,211,0.35); font-family:\'Shippori Mincho\',serif; '
-            'font-style:italic; font-size:0.88rem; margin-top:1.25rem;">'
-            "Aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank'>NIST SP 800-63B Rev. 4</a>.</p>",
+            '<p style="color:#7878A0; font-size:0.76rem; margin-top:0.75rem;">'
+            "These recommendations are aligned with <a href='https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63B-4.pdf' target='_blank' style='color:#7878A0;'>NIST SP 800-63B Rev. 4</a>.</p>",
             unsafe_allow_html=True,
         )
 
 
 def render_scoring_panel():
-    with st.expander("How scoring works"):
+    """Render a generic scoring explanation inside an expander."""
+    with st.expander("How Scoring Works"):
         st.markdown(
-            f"Your password is scored out of <em style='color:{_ACCENT};font-style:normal;'>100 points</em> "
-            "across seven categories. Crack-time resistance carries the most weight because it directly "
-            "measures real-world entropy. Character diversity rules are useful nudges, not a "
+            "Your password is scored out of <span style='color:#F5A623;font-weight:700'>100 points</span> across 7 categories. "
+            "Crack-time resistance carries the most weight because it directly measures "
+            "real-world entropy. Character diversity rules are useful nudges, not a "
             "substitute for genuine unpredictability.",
             unsafe_allow_html=True,
         )
 
-        st.markdown("##### Point breakdown")
+        st.markdown("#### Point Breakdown")
         st.markdown(
             "| Category | Points |\n"
             "|----------|--------|\n"
@@ -933,30 +822,30 @@ def render_scoring_panel():
             "| Contains numbers | 5 |\n"
             "| Contains special characters | 5 |\n"
             "| Not found in breach databases | 20 |\n"
-            "| Crack-time resistance | 0–50 |"
+            "| Crack-time resistance | 0\u201350 |"
         )
 
-        st.markdown("##### Breach database checks")
+        st.markdown("#### Breach Database Checks")
         st.markdown(
             "Your password is checked against **[Have I Been Pwned](https://haveibeenpwned.com)**, "
-            "a database of over 900 million passwords collected from hundreds of real-world breaches. "
-            "If your password appears there, someone has used it, and attackers have it too. "
-            "The check is private: only the first 5 characters of its hash are ever transmitted, "
-            "so your actual password never leaves your device.\n\n"
+            "a database of over 900 million passwords collected from hundreds of real-world data breaches. "
+            "If your password appears here, it means someone, somewhere, has already used it, and attackers have it too. "
+            "Your password is checked privately using k-anonymity: only the first 5 characters of its hash "
+            "are ever transmitted, so your actual password never leaves your device.\n\n"
             "Attackers commonly use wordlists like [rockyou.txt](https://en.wikipedia.org/wiki/RockYou), "
-            "14 million real passwords leaked in the 2009 RockYou breach, as their first line of attack. "
-            "Have I Been Pwned contains rockyou.txt and far more."
+            "a list of 14 million real passwords leaked in the 2009 RockYou breach, as their first line of attack. "
+            "Have I Been Pwned contains rockyou.txt and far more, making it the definitive check."
         )
 
-        st.markdown("##### Crack-time resistance")
+        st.markdown("#### Crack-Time Resistance")
         st.markdown(
             "This category uses [zxcvbn](https://dropbox.tech/security/zxcvbn-realistic-password-strength-estimation) "
-            "pattern analysis to estimate how long a real-world attacker would need to crack your password "
-            "assuming bcrypt hashing at 10,000 guesses per second. At 50 points it is the single largest "
-            "factor in the score."
+            "pattern analysis to estimate how long a real-world attacker would need to "
+            "crack your password assuming bcrypt hashing at 10,000 guesses per second. "
+            "At 50 points it is the single largest factor in your score."
         )
         st.markdown(
-            "| Estimated crack time | Points |\n"
+            "| Estimated Crack Time | Points |\n"
             "|----------------------|--------|\n"
             "| Less than 1 second | 0 |\n"
             "| Less than 1 minute | 5 |\n"
@@ -967,36 +856,46 @@ def render_scoring_panel():
             "| 100+ years | 50 |"
         )
 
-        st.markdown("##### Entropy, in plain words")
-        st.markdown(_html(f"""
-            <p>Alongside your score you&rsquo;ll see an <em style='color:{_ACCENT};font-style:normal;'>entropy</em>
-            value measured in <em style='color:{_ACCENT};font-style:normal;'>bits</em>.
-            Entropy measures unpredictability, not complexity: how many attempts it would take to guess the password.</p>
-            <p>Each additional bit doubles the guesses required. 10 bits is about 1,000 guesses;
-            20 bits, about a million; 40 bits, about a trillion.</p>
+        st.markdown("#### Entropy: What Are Bits and Guesses?")
+        st.markdown(_html("""
+            <p>Alongside your score, you'll see an
+            <span style='color:#F5A623;font-weight:700'>entropy</span> value measured in
+            <span style='color:#F5A623;font-weight:700'>bits</span>.
+            Entropy is a way of measuring how unpredictable your password is, not how complex it looks,
+            but how many attempts an attacker would need to guess it.</p>
+            <p><span style='color:#F5A623;font-weight:700'>Bits</span> are the unit. Each additional bit doubles the number of guesses required.
+            Think of it like this: 10 bits = ~1,000 guesses. 20 bits = ~1 million. 40 bits = ~1 trillion.
+            Every bit you add makes the attacker's job exponentially harder, not just a little harder.</p>
+            <p><span style='color:#F5A623;font-weight:700'>Guesses</span> is the same number written in plain English: the raw count of attempts
+            a computer would have to make before it's likely to crack your password.
+            A modern offline attack can test billions of guesses per second, so anything under
+            a few trillion (~42 bits) is considered reachable with enough hardware and time.</p>
             <p>A long passphrase like
-            <code>correct-horse-battery-staple</code>
-            reaches 50+ bits of entropy with no uppercase, numbers, or symbols, because its length
-            and randomness create a search space too large to brute-force. The insight:
-            <em style='color:{_OK};font-style:normal;'>length beats complexity</em>.</p>
+            <code style='color:#00E676;background:rgba(0,230,118,0.08);padding:0.1rem 0.35rem'>correct-horse-battery-staple</code>
+            can reach 50+ bits of entropy with no uppercase, numbers, or symbols, because its length
+            and randomness create a search space too large to brute-force. That's the core insight:
+            <span style='color:#00E676;font-weight:700'>length beats complexity</span>.</p>
         """), unsafe_allow_html=True)
 
-        st.markdown("##### Final rating")
-        st.markdown(_html(f"""
-            <table>
-            <thead><tr><th>Rating</th><th>Score</th></tr></thead>
+        st.markdown("#### Final Rating")
+        st.markdown(_html("""
+            <table style='width:100%;border-collapse:collapse;font-size:0.82rem'>
+            <thead><tr>
+            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Rating</th>
+            <th style='color:#46466A;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid #222240'>Score Range</th>
+            </tr></thead>
             <tbody>
-              <tr><td><em style='color:{_ACCENT};font-style:italic;'>excellent</em></td><td>100</td></tr>
-              <tr><td><em style='color:{_ACCENT};font-style:italic;'>strong</em></td><td>80&ndash;95</td></tr>
-              <tr><td><em style='color:#B08C5A;font-style:italic;'>good</em></td><td>60&ndash;75</td></tr>
-              <tr><td><em style='color:#A67448;font-style:italic;'>fair</em></td><td>40&ndash;55</td></tr>
-              <tr><td><em style='color:#9B3F35;font-style:italic;'>weak</em></td><td>below 40</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>EXCELLENT</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>100</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#00E676;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #00E676;padding:0.1rem 0.45rem'>STRONG</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>80&ndash;95</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FFD600;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FFD600;padding:0.1rem 0.45rem'>GOOD</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>60&ndash;75</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830'><span style='color:#FF6D00;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF6D00;padding:0.1rem 0.45rem'>FAIR</span></td><td style='padding:0.35rem 0.6rem;border-bottom:1px solid #181830;color:#CECEE0'>40&ndash;55</td></tr>
+            <tr><td style='padding:0.35rem 0.6rem'><span style='color:#FF1744;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;border:1px solid #FF1744;padding:0.1rem 0.45rem'>WEAK</span></td><td style='padding:0.35rem 0.6rem;color:#CECEE0'>Below 40</td></tr>
             </tbody></table>
         """), unsafe_allow_html=True)
         st.markdown(
-            f"Any password that can be cracked in <em style='color:{_WARN};font-style:normal;'>under an hour</em> "
-            f"or is found in Have I Been Pwned is rated <em style='color:{_WARN};font-style:normal;'>weak</em> "
-            "regardless of its total score.",
+            "Any password that can be cracked in <span style='color:#FF1744;font-weight:700'>under 1 hour</span> "
+            "or is found in Have I Been Pwned is automatically rated "
+            "<span style='color:#FF1744;font-weight:700'>WEAK</span> regardless of its total score.",
             unsafe_allow_html=True,
         )
 
@@ -1019,51 +918,79 @@ def _compute_policy_compliance(password, result):
 
 
 def render_policy_compliance(password, result, compliance):
-    """Render policy compliance as a light two-column disclosure."""
-    pw_len = len(password)
+    """Render the policy compliance panel (Deep Analysis section)."""
 
-    def _mark(passed, na=False):
+    def _cell(passed, pass_label, fail_label, na=False):
         if na:
-            return f'<span style="color:rgba(232,223,211,0.35);">n/a</span>'
-        color = "#7A8F65" if passed else "#9B3F35"
-        word = "met" if passed else "not met"
-        return f'<span style="color:{color}; font-style:italic;">{word}</span>'
-
-    def _row(criterion, detail, old_cell, nist_cell):
+            return (
+                f'<div style="text-align:center;">'
+                f'<span style="color:#7878A0; font-size:0.62rem; font-weight:700; '
+                f'font-family:JetBrains Mono,monospace;">[N/A]</span>'
+                f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+                f'font-family:JetBrains Mono,monospace;">{html.escape(pass_label)}</div>'
+                f'</div>'
+            )
+        color = "#00E676" if passed else "#FF1744"
+        badge = "[PASS]" if passed else "[FAIL]"
+        label = pass_label if passed else fail_label
         return (
-            f'<div style="padding:0.5rem 0; border-bottom:1px solid rgba(232,223,211,0.06);">'
-            f'  <div style="display:grid; grid-template-columns:1.2fr 0.9fr 0.9fr; gap:1rem; align-items:baseline;">'
-            f'    <div style="font-family:\'Shippori Mincho\',serif; font-size:0.92rem; color:#E8DFD3;">{html.escape(criterion)}</div>'
-            f'    <div style="font-family:\'Shippori Mincho\',serif; font-size:0.85rem;">{old_cell}</div>'
-            f'    <div style="font-family:\'Shippori Mincho\',serif; font-size:0.85rem;">{nist_cell}</div>'
-            f'  </div>'
-            f'  <div style="color:rgba(232,223,211,0.35); font-family:\'JetBrains Mono\',monospace; font-size:0.72rem; margin-top:0.2rem; letter-spacing:0.02em;">{html.escape(detail)}</div>'
+            f'<div style="text-align:center;">'
+            f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
+            f'font-family:JetBrains Mono,monospace;">{badge}</span>'
+            f'<div style="font-size:0.58rem; color:#7878A0; margin-top:0.15rem; '
+            f'font-family:JetBrains Mono,monospace;">{html.escape(label)}</div>'
             f'</div>'
         )
 
+    def _row(criterion, old_cell, nist_cell):
+        return (
+            f'<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
+            f'padding:0.5rem 0; border-bottom:1px solid #111120; align-items:center;">'
+            f'<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            f'{html.escape(criterion)}</div>'
+            f'{old_cell}{nist_cell}'
+            f'</div>'
+        )
+
+    pw_len = len(password)
     header = (
-        '<div style="display:grid; grid-template-columns:1.2fr 0.9fr 0.9fr; gap:1rem; '
-        'padding-bottom:0.5rem; border-bottom:1px solid rgba(232,223,211,0.06); margin-bottom:0.25rem;">'
+        '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">'
         '<div></div>'
-        '<div style="font-family:\'Shippori Mincho\',serif; font-style:italic; color:rgba(232,223,211,0.35); font-size:0.82rem;">old-school corporate</div>'
-        '<div style="font-family:\'Shippori Mincho\',serif; font-style:italic; color:#D24D3E; font-size:0.82rem;">NIST SP 800-63B</div>'
+        '<div style="font-size:0.52rem; color:#7878A0; letter-spacing:0.1em; text-transform:uppercase; '
+        'text-align:center; font-family:JetBrains Mono,monospace;">Old-School Corporate</div>'
+        '<div style="font-size:0.52rem; color:#F5A623; letter-spacing:0.1em; text-transform:uppercase; '
+        'text-align:center; font-family:JetBrains Mono,monospace;">NIST SP 800-63B</div>'
         '</div>'
     )
 
-    rows = (
+    rows_html = (
         header
-        + _row("Minimum length", f"{pw_len} characters",
-               _mark(compliance["cs_length"]),
-               _mark(compliance["nist_length"]))
-        + _row("Character complexity", "upper, lower, digit, special",
-               _mark(compliance["cs_complexity"]),
-               _mark(True))
-        + _row("Breach database check", "Have I Been Pwned",
-               _mark(False, na=True),
-               _mark(compliance["nist_breach"]))
-        + _row("Forced rotation", "typically every 90 days",
-               _mark(False, na=True),
-               _mark(True))
+        + _row("Minimum length",
+               _cell(compliance["cs_length"],
+                     f"requires 8+, has {pw_len}",
+                     f"requires 8+, has {pw_len}"),
+               _cell(compliance["nist_length"],
+                     f"recommends 15+, has {pw_len}",
+                     f"recommends 15+, has {pw_len}"))
+        + _row("Character complexity",
+               _cell(compliance["cs_complexity"],
+                     "upper, lower, digit, special",
+                     "requires upper, lower, digit, special"),
+               _cell(True, "not required", "not required"))
+        + _row("Breach database check",
+               _cell(False, "not performed", "not performed", na=True),
+               _cell(compliance["nist_breach"],
+                     "not found in HIBP",
+                     "found in HIBP"))
+        + (
+            '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; '
+            'padding:0.5rem 0; align-items:center;">'
+            '<div style="font-size:0.7rem; color:#CECEE0; font-family:JetBrains Mono,monospace;">'
+            'Forced rotation</div>'
+            + _cell(False, "typically every 90 days", "typically every 90 days", na=True)
+            + _cell(True, "not recommended", "not recommended")
+            + '</div>'
+        )
     )
 
     cs_pass   = compliance["cs_length"] and compliance["cs_complexity"]
@@ -1071,41 +998,37 @@ def render_policy_compliance(password, result, compliance):
 
     if cs_pass and nist_pass:
         summary = "This password meets both standards."
-        summary_color = "#7A8F65"
+        summary_color = "#00E676"
     elif nist_pass and not cs_pass:
         summary = ("This password would be rejected by a typical corporate policy but is fully "
                    "compliant with NIST SP 800-63B, and significantly harder to crack.")
-        summary_color = "#D24D3E"
+        summary_color = "#F5A623"
     elif cs_pass and not nist_pass:
         summary = ("This password meets old-school corporate requirements but does not meet "
                    "current NIST guidance.")
-        summary_color = "#A67448"
+        summary_color = "#FF6D00"
     else:
         summary = "This password fails both standards."
-        summary_color = "#9B3F35"
+        summary_color = "#FF1744"
 
     st.markdown(
         _html(f"""
-        <div class="pv-reveal pv-reveal-2" style="margin: 1.5rem auto; max-width:560px;">
-            <div class="pv-soft-head">policy compliance</div>
-            {rows}
-            <div style="margin-top:1rem; color:{summary_color};
-                        font-family:'Shippori Mincho',serif; font-style:italic;
-                        font-size:0.92rem; line-height:1.55;">
-                {html.escape(summary)}
-            </div>
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">Policy Compliance</div>
+            {rows_html}
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
         </div>
         """),
         unsafe_allow_html=True,
     )
 
 
-def render_share_summary(result, compliance):
-    """A spare, borderless security summary — no report-card chrome."""
+def render_share_card(result, compliance):
+    """Render the shareable result card at the bottom of Deep Analysis."""
     score      = result["score"]
     max_score  = result["max_score"]
     rating     = result["rating"]
-    color      = RATING_COLORS.get(rating, "#E8DFD3")
+    color      = RATING_COLORS.get(rating, "#46466A")
     crack_time = result["crack_time"]
     today      = datetime.date.today().strftime("%Y-%m-%d")
 
@@ -1113,67 +1036,68 @@ def render_share_summary(result, compliance):
     hibp_unavailable = any("hibp api unavailable" in r.lower() for r in result["failed"])
     nist_pass        = compliance["nist_length"] and compliance["nist_breach"]
     crack_resistant  = result["crack_seconds"] >= 3_153_600_000  # 100 years
-    hibp_count       = result.get("hibp_count")
 
-    def _line(passed, pass_text, fail_text):
-        mark = "·" if passed else "✕"
-        text = pass_text if passed else fail_text
-        c    = "#7A8F65" if passed else "#9B3F35"
+    def _check_row(passed, pass_text, fail_text):
+        icon  = "\u2713" if passed else "\u2717"
+        text  = pass_text if passed else fail_text
+        color = "#00E676" if passed else "#FF1744"
         return (
-            f'<div style="display:flex; gap:0.9rem; align-items:baseline; padding:0.35rem 0;">'
-            f'<span style="color:{c}; font-family:\'Shippori Mincho\',serif; font-size:1rem; width:1rem; text-align:center; flex-shrink:0;">{mark}</span>'
-            f'<span style="color:#E8DFD3; font-family:\'Shippori Mincho\',serif; font-size:0.92rem; line-height:1.55;">{html.escape(text)}</span>'
-            f'</div>'
+            f'<div style="font-size:0.68rem; color:{color}; letter-spacing:0.04em; '
+            f'font-family:JetBrains Mono,monospace;">{icon} {html.escape(text)}</div>'
         )
 
+    hibp_count = result.get("hibp_count")
     if hibp_unavailable:
-        hibp_line = _line(False, "", "Breach database check was unavailable.")
+        hibp_row = _check_row(False, "", "Breach database check unavailable")
     elif hibp_passed:
-        hibp_line = _line(True, "Not found in Have I Been Pwned.", "")
+        hibp_row = _check_row(True, "Not found in Have I Been Pwned breach database", "")
     else:
-        count_str = f" (seen {hibp_count:,} times)" if hibp_count is not None else ""
-        hibp_line = _line(False, "", f"Found in Have I Been Pwned{count_str}.")
+        count_str = f" ({hibp_count:,} breaches)" if hibp_count is not None else ""
+        hibp_row = _check_row(False, "",
+                              f"Found in Have I Been Pwned breach database{count_str}")
 
     checks_html = (
-        hibp_line
-        + _line(nist_pass,
-                "NIST SP 800-63B compliant.",
-                "Does not meet NIST SP 800-63B.")
-        + _line(crack_resistant,
-                "Resists offline brute-force attack.",
-                "Vulnerable to offline brute-force attack.")
+        hibp_row
+        + _check_row(nist_pass,
+                     "NIST SP 800-63B compliant",
+                     "Does not meet NIST SP 800-63B")
+        + _check_row(crack_resistant,
+                     "Resists offline brute-force attack",
+                     "Vulnerable to offline brute-force attack")
     )
 
     st.markdown(
         _html(f"""
-        <div class="pv-reveal pv-reveal-3" style="margin: 2.5rem auto 1rem auto; max-width:560px;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;
-                        padding-bottom:0.5rem; margin-bottom:1.25rem;
-                        border-bottom:1px solid rgba(232,223,211,0.06);">
-                <span class="pv-soft-head" style="margin:0;">security summary</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:rgba(232,223,211,0.35);">{today}</span>
+        <div class="t-reveal" style="border:1px solid #F5A623; margin:0.75rem 0;">
+            <div style="background:#F5A623; padding:0.4rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#06060C; font-size:0.6rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Password Validator // Security Report</span>
+                <span style="color:#06060C; font-size:0.58rem; letter-spacing:0.1em; font-family:'JetBrains Mono',monospace;">{today}</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
-                <div>
-                    <div style="font-family:'Shippori Mincho',serif; font-style:italic; color:rgba(232,223,211,0.35); font-size:0.82rem; margin-bottom:0.4rem;">score</div>
-                    <div style="font-family:'Shippori Mincho',serif; font-weight:500; color:{color}; font-size:1.75rem; line-height:1;">
-                        {score}<span style="color:rgba(232,223,211,0.35); font-size:0.9rem; font-weight:400;"> / {max_score}</span>
+            <div style="background:#0D0D1A; padding:1.25rem 1.5rem;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Score</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace;">{score}<span style="font-size:0.75rem; color:#7878A0; font-weight:400;">/{max_score}</span></div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.35rem;">Rating</div>
+                        <div style="border:1px solid {color}; padding:0.25rem 0.75rem; display:inline-block;">
+                            <span style="font-size:1rem; font-weight:800; color:{color}; font-family:'JetBrains Mono',monospace;">{html.escape(rating)}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.5rem; color:#7878A0; letter-spacing:0.16em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.25rem;">Crack Time</div>
+                        <div style="font-size:1.2rem; font-weight:800; color:{color}; line-height:1; font-family:'JetBrains Mono',monospace; margin-top:0.15rem;">{html.escape(crack_time.capitalize())}</div>
                     </div>
                 </div>
-                <div>
-                    <div style="font-family:'Shippori Mincho',serif; font-style:italic; color:rgba(232,223,211,0.35); font-size:0.82rem; margin-bottom:0.4rem;">rating</div>
-                    <div style="font-family:'Shippori Mincho',serif; font-style:italic; color:{color}; font-size:1.35rem; line-height:1; letter-spacing:0.01em;">
-                        {html.escape(rating.lower())}
-                    </div>
+                <div style="display:flex; flex-direction:column; gap:0.3rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #181830;">
+                    {checks_html}
                 </div>
-                <div>
-                    <div style="font-family:'Shippori Mincho',serif; font-style:italic; color:rgba(232,223,211,0.35); font-size:0.82rem; margin-bottom:0.4rem;">crack time</div>
-                    <div style="font-family:'JetBrains Mono',monospace; color:{color}; font-size:1rem; line-height:1.25; letter-spacing:0.02em;">
-                        {html.escape(crack_time)}
-                    </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">pw-validator.streamlit.app</span>
+                    <span style="font-size:0.58rem; color:#46466A; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">Built by Ben Mickens</span>
                 </div>
             </div>
-            {checks_html}
         </div>
         """),
         unsafe_allow_html=True,
@@ -1181,49 +1105,45 @@ def render_share_summary(result, compliance):
 
 
 def render_attack_breakdown(result):
+    """Render the attack method breakdown panel (Deep Analysis section)."""
     sequence = result.get("attack_sequence", [])
     non_brute = [s for s in sequence if s["tag"] != "BRUTE"]
 
     if not non_brute:
-        body = (
-            '<div style="color:#7A8F65; font-family:\'Shippori Mincho\',serif; '
-            'font-style:italic; font-size:0.94rem; line-height:1.55;">'
-            "No exploitable patterns detected. An attacker would have to try every combination."
-            '</div>'
+        content_html = (
+            '<div style="color:#00E676; font-size:0.75rem; letter-spacing:0.06em; '
+            'font-family:JetBrains Mono,monospace;">'
+            '\u2713 No exploitable patterns detected. Attacker falls back to pure brute force.</div>'
         )
-        tail = ("Without a recognizable pattern, cracking requires testing every possible "
-                "combination, which is what makes length and randomness so decisive.")
+        summary = "Without a recognizable pattern, cracking requires testing every possible combination."
+        summary_color = "#7878A0"
     else:
         rows = ""
         for item in non_brute:
-            color = _SEVERITY_COLORS.get(item["severity"], "rgba(232,223,211,0.35)")
-            tag_display = _TAG_DISPLAY.get(item["tag"], item["tag"].lower())
+            color = _SEVERITY_COLORS.get(item["severity"], "#7878A0")
+            tag_display = _TAG_DISPLAY.get(item["tag"], item["tag"])
             rows += (
-                f'<div style="display:grid; grid-template-columns:7.5rem 1fr; gap:1rem; padding:0.45rem 0; '
-                f'border-bottom:1px solid rgba(232,223,211,0.06); align-items:baseline;">'
-                f'<div>'
-                f'  <div style="color:{color}; font-family:\'Shippori Mincho\',serif; font-style:italic; font-size:0.88rem;">{html.escape(tag_display)}</div>'
-                f'  <div style="color:#D24D3E; font-family:\'JetBrains Mono\',monospace; font-size:0.9rem; letter-spacing:0.02em; margin-top:0.2rem;">&ldquo;{html.escape(item["token"])}&rdquo;</div>'
-                f'</div>'
-                f'<div style="color:rgba(232,223,211,0.75); font-family:\'Shippori Mincho\',serif; font-size:0.9rem; line-height:1.55;">'
-                f'  {html.escape(item["description"])}'
-                f'</div>'
+                f'<div style="display:flex; gap:0.8rem; align-items:baseline; margin:0.38rem 0;">'
+                f'<span style="color:{color}; font-size:0.62rem; font-weight:700; '
+                f'white-space:nowrap; font-family:JetBrains Mono,monospace;">{html.escape(tag_display)}</span>'
+                f'<span style="color:#F5A623; font-size:0.82rem; font-weight:700; '
+                f'font-family:JetBrains Mono,monospace; white-space:nowrap;">'
+                f'&quot;{html.escape(item["token"])}&quot;</span>'
+                f'<span style="color:#7878A0; font-size:0.72rem; font-family:JetBrains Mono,monospace;">'
+                f'{html.escape(item["description"])}</span>'
                 f'</div>'
             )
-        body = rows
-        tail = ("Attackers work through dictionaries, dates, and keyboard patterns before "
-                "falling back to brute force. Each recognizable fragment collapses the search space.")
+        content_html = rows
+        summary = ("Attackers use automated tools that try dictionary words, dates, and keyboard "
+                   "patterns before brute force.")
+        summary_color = "#7878A0"
 
     st.markdown(
         _html(f"""
-        <div class="pv-reveal pv-reveal-2" style="margin: 2rem auto 0 auto; max-width:560px;">
-            <div class="pv-soft-head">how an attacker would approach this</div>
-            {body}
-            <div style="margin-top:1rem; color:rgba(232,223,211,0.35);
-                        font-family:'Shippori Mincho',serif; font-style:italic;
-                        font-size:0.88rem; line-height:1.6;">
-                {html.escape(tail)}
-            </div>
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">How An Attacker Would Crack This</div>
+            {content_html}
+            <div style="margin-top:0.9rem; padding-top:0.7rem; border-top:1px solid #181830; font-size:0.65rem; color:{summary_color}; letter-spacing:0.04em; line-height:1.6; font-family:'JetBrains Mono',monospace;">{html.escape(summary)}</div>
         </div>
         """),
         unsafe_allow_html=True,
@@ -1231,6 +1151,7 @@ def render_attack_breakdown(result):
 
 
 def render_validation_results(password):
+    """Run validation and display results."""
     if not password:
         st.warning("Please enter a password first.")
         st.stop()
@@ -1245,93 +1166,155 @@ def render_validation_results(password):
 
     result = full_validate(password)
 
-    score     = result["score"]
-    max_score = result["max_score"]
-    rating    = result["rating"]
-    color     = RATING_COLORS.get(rating, "#E8DFD3")
+    score      = result["score"]
+    max_score  = result["max_score"]
+    rating     = result["rating"]
+    color      = RATING_COLORS.get(rating, "#7878A0")
+    grad_a, grad_b = RATING_GRADIENTS.get(rating, ("#7878A0", "#7878A0"))
+    score_pct  = min(score / max_score, 1.0)
 
-    # ── Ensō + score + rating (the hero) ───────────────────────────────────
-    render_enso_hero(score, max_score, rating, color)
+    # Ring geometry: r=90, circumference ≈ 565.48
+    ring_circumference = 565.48
+    ring_dashoffset    = ring_circumference * (1 - score_pct)
 
-    # ── HIBP failure warning (inline, quiet) ───────────────────────────────
+    # Per-metric tiers + display values
+    crack_tier  = _crack_time_tier(result["crack_seconds"])
+    hibp_unavailable = any("hibp api unavailable" in r.lower() for r in result["failed"])
+    breach_tier = _breach_tier(result.get("hibp_count"), hibp_unavailable)
+    length_tier = _length_tier(len(password))
+
+    crack_val   = result["crack_time"].capitalize()
+    breach_val  = "Unknown" if hibp_unavailable else _format_breach_count(result.get("hibp_count"))
+    length_val  = f"{len(password)} chars"
+
+    crack_color  = _TIER_COLORS[crack_tier]
+    breach_color = _TIER_COLORS[breach_tier]
+    length_color = _TIER_COLORS[length_tier]
+
+    # Unique gradient id per render so multiple results don't collide
+    grad_id = f"pv-grad-{hash(rating) & 0xFFFF}"
+
+    st.markdown(
+        _html(f"""
+        <div class="t-reveal pv-result">
+            <div class="ring-wrap">
+                <svg viewBox="0 0 200 200">
+                    <defs>
+                        <linearGradient id="{grad_id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="{grad_a}" />
+                            <stop offset="100%" stop-color="{grad_b}" />
+                        </linearGradient>
+                    </defs>
+                    <circle class="ring-bg" cx="100" cy="100" r="90" />
+                    <circle class="ring-fg" cx="100" cy="100" r="90"
+                        style="stroke:url(#{grad_id}); stroke-dashoffset:{ring_dashoffset:.2f};" />
+                </svg>
+                <div class="ring-center">
+                    <div class="num">{score}<span class="of">/{max_score}</span></div>
+                    <div class="badge" style="color:{color};">{html.escape(rating)}</div>
+                </div>
+            </div>
+            <div class="breakdown">
+                <div class="row">
+                    <span class="lbl-wrap">
+                        <span class="dot" style="background:{crack_color};"></span>
+                        <span class="lbl">Crack time</span>
+                    </span>
+                    <span class="val" style="color:{crack_color};">{html.escape(crack_val)}</span>
+                </div>
+                <div class="row">
+                    <span class="lbl-wrap">
+                        <span class="dot" style="background:{breach_color};"></span>
+                        <span class="lbl">Breach check</span>
+                    </span>
+                    <span class="val" style="color:{breach_color};">{html.escape(breach_val)}</span>
+                </div>
+                <div class="row">
+                    <span class="lbl-wrap">
+                        <span class="dot" style="background:{length_color};"></span>
+                        <span class="lbl">Length</span>
+                    </span>
+                    <span class="val" style="color:{length_color};">{html.escape(length_val)}</span>
+                </div>
+            </div>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+    # ── HIBP failure warning ───────────────────────────────────────────────
     if any("HIBP API unavailable" in r for r in result["failed"]):
         st.warning(
             "The breach database check could not be completed. "
-            "This password has not been verified against known breaches. "
+            "This password has NOT been verified against known breaches. "
             "Retry when you have network connectivity."
         )
 
-    # ── Sparse single-line metrics ─────────────────────────────────────────
-    render_sparse_metrics(
-        result["crack_time"],
-        result["crack_seconds"],
-        result["entropy_bits"],
-        result["guesses"],
-    )
+    # ── Threat gauge ───────────────────────────────────────────────────────
+    render_threat_gauge(result["crack_time"], result["crack_seconds"])
 
     # ── Rule analysis ──────────────────────────────────────────────────────
     passed = result["passed"]
     failed = result["failed"]
-    opt_count  = sum(1 for r in failed if r.startswith("○"))
+    opt_count  = sum(1 for r in failed if r.startswith("\u25cb"))
     fail_count = len(failed) - opt_count
 
-    rules_html = ""
+    rows_html = ""
+    badge_style = "display:inline-block; min-width:2.8rem; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; white-space:nowrap; font-family:JetBrains Mono,monospace; padding-top:2px;"
     for rule in passed:
-        rules_html += (
-            f'<div class="pv-rule pv-rule-pass">'
-            f'<span class="pv-rule-mark">·</span>'
-            f'<span class="pv-rule-text">{html.escape(rule)}</span>'
+        rows_html += (
+            f'<div class="pv-row-pass" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
+            f'<span style="color:#00E676; {badge_style}">[OK]</span>'
+            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
+            f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
     for rule in failed:
-        if rule.startswith("⚠"):
-            cls, mark = "pv-rule-warn", "—"
-        elif rule.startswith("○"):
-            cls, mark = "pv-rule-opt", "○"
+        if rule.startswith("\u26a0"):
+            row_class = "pv-row-warn"
+            badge = f'<span style="color:#F5A623; {badge_style}">[WARN]</span>'
+        elif rule.startswith("\u25cb"):
+            row_class = "pv-row-opt"
+            badge = f'<span style="color:#7878A0; {badge_style}">[OPT]</span>'
         else:
-            cls, mark = "pv-rule-fail", "✕"
-        rules_html += (
-            f'<div class="pv-rule {cls}">'
-            f'<span class="pv-rule-mark">{mark}</span>'
-            f'<span class="pv-rule-text">{html.escape(rule)}</span>'
+            row_class = "pv-row-fail"
+            badge = f'<span style="color:#FF1744; {badge_style}">[FAIL]</span>'
+        rows_html += (
+            f'<div class="{row_class}" style="display:flex; gap:0.8rem; align-items:flex-start; margin:0.38rem 0;">'
+            f'{badge}'
+            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.4; '
+            f'font-family:JetBrains Mono,monospace;">{html.escape(rule)}</span>'
             f'</div>'
         )
         if "have i been pwned" in rule.lower() and result.get("hibp_count") is not None:
             count = result["hibp_count"]
-            rules_html += (
-                f'<div style="max-width:560px; margin:0 auto; padding:0.15rem 0 0.4rem 2.1rem; '
-                f'color:rgba(232,223,211,0.45); font-family:\'Shippori Mincho\',serif; '
-                f'font-size:0.85rem; font-style:italic; line-height:1.55;">'
-                f'Seen {count:,} times in real-world breaches. Credential-stuffing tools will try '
-                f'it against every account you own.'
+            rows_html += (
+                f'<div style="padding:0.3rem 0.6rem 0.5rem 2.5rem; font-size:0.67rem; '
+                f'color:#7878A0; line-height:1.6; font-family:JetBrains Mono,monospace;">'
+                f'Passwords in breach databases are loaded into automated credential stuffing tools '
+                f'and tried against millions of accounts. A count of {count:,} means this exact '
+                f'password has been seen that many times in real-world breaches.'
                 f'</div>'
             )
 
-    if not rules_html:
-        rules_html = (
-            '<div class="pv-rule"><span class="pv-rule-mark">·</span>'
-            '<span class="pv-rule-text" style="color:rgba(232,223,211,0.35);">No rules evaluated.</span></div>'
-        )
-
-    tally = (
-        f'<span style="color:#7A8F65; font-family:\'Shippori Mincho\',serif; font-style:italic; font-size:0.85rem;">{len(passed)} passed</span>'
-        f'<span style="color:rgba(232,223,211,0.25); margin:0 0.6rem;">·</span>'
-        f'<span style="color:#9B3F35; font-family:\'Shippori Mincho\',serif; font-style:italic; font-size:0.85rem;">{fail_count} failed</span>'
-    )
-    if opt_count:
-        tally += (
-            f'<span style="color:rgba(232,223,211,0.25); margin:0 0.6rem;">·</span>'
-            f'<span style="color:rgba(232,223,211,0.35); font-family:\'Shippori Mincho\',serif; font-style:italic; font-size:0.85rem;">{opt_count} optional</span>'
+    if not rows_html:
+        rows_html = (
+            '<span style="color:#7878A0; font-size:0.78rem; '
+            'font-family:JetBrains Mono,monospace;">No rules evaluated.</span>'
         )
 
     st.markdown(
         _html(f"""
-        <div class="pv-reveal pv-reveal-1" style="margin: 2.5rem auto 1rem auto; max-width:560px;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem;">
-                <span class="pv-soft-head" style="margin:0;">analysis</span>
-                <div>{tally}</div>
+        <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.9rem; padding-bottom:0.75rem; border-bottom:1px solid #181830;">
+                <span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace;">Rule Analysis</span>
+                <div style="display:flex; gap:1.25rem;">
+                    <span style="font-size:0.6rem; color:#00E676; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2713; {len(passed)} passed</span>
+                    <span style="font-size:0.6rem; color:#FF1744; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x2717; {fail_count} failed</span>
+                    <span style="font-size:0.6rem; color:#7878A0; letter-spacing:0.08em; font-family:'JetBrains Mono',monospace;">&#x25cb; {opt_count} optional</span>
+                </div>
             </div>
-            {rules_html}
+            {rows_html}
         </div>
         """),
         unsafe_allow_html=True,
@@ -1351,87 +1334,37 @@ def render_validation_results(password):
 
     if recs:
         items_html = "".join(
-            f'<div class="pv-rule">'
-            f'<span class="pv-rule-mark" style="color:#D24D3E;">→</span>'
-            f'<span class="pv-rule-text">{_md_bold(rec)}</span>'
+            f'<div style="display:flex; gap:0.8rem; margin:0.45rem 0;">'
+            f'<span style="color:#F5A623; font-size:0.68rem; flex-shrink:0; '
+            f'font-family:JetBrains Mono,monospace; padding-top:2px;">&#8594;</span>'
+            f'<span style="color:#CECEE0; font-size:0.78rem; line-height:1.5; '
+            f'font-family:JetBrains Mono,monospace;">{_md_bold(rec)}</span>'
             f'</div>'
             for rec in recs
         )
         st.markdown(
             _html(f"""
-            <div class="pv-reveal pv-reveal-2" style="margin: 2rem auto 1rem auto; max-width:560px;">
-                <div class="pv-soft-head" style="color:#D24D3E;">recommendations</div>
+            <div class="t-reveal" style="background:#0D0D1A; border:1px solid #222240; border-left:3px solid #F5A623; padding:1.25rem 1.5rem; margin:0.75rem 0;">
+                <div style="font-size:0.58rem; color:#F5A623; letter-spacing:0.22em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-bottom:0.75rem;">Recommendations</div>
                 {items_html}
             </div>
             """),
             unsafe_allow_html=True,
         )
 
-    # ── Deep analysis ──────────────────────────────────────────────────────
+    # ── Deep Analysis ──────────────────────────────────────────────────────
     st.markdown(
-        _html(
-            '<div class="pv-section pv-reveal pv-reveal-2">'
-            '<span class="pv-section-mark">○</span>'
-            'deeper analysis'
-            '</div>'
-        ),
+        _html('<div style="display:flex; align-items:center; gap:1rem; margin:2rem 0 1.25rem;"><div style="flex:1; height:1px; background:#181830;"></div><span style="font-size:0.58rem; color:#7878A0; letter-spacing:0.22em; text-transform:uppercase; white-space:nowrap; font-family:JetBrains Mono,monospace;">Deep Analysis</span><div style="flex:1; height:1px; background:#181830;"></div></div>'),
         unsafe_allow_html=True,
     )
 
     compliance = _compute_policy_compliance(password, result)
     render_attack_breakdown(result)
     render_policy_compliance(password, result, compliance)
-    render_share_summary(result, compliance)
+    render_share_card(result, compliance)
 
     st.session_state["validation_done"] = True
     st.session_state["last_validated_password"] = password
-
-    # ── Ensō draw + score counter + rating fade-in ─────────────────────────
-    components.html(
-        """
-        <script>
-        (function() {
-            var attempts = 0;
-            var poll = setInterval(function() {
-                var scoreEl  = window.parent.document.getElementById('pv-score');
-                var ensoEl   = window.parent.document.getElementById('pv-enso-stroke');
-                var ratingEl = window.parent.document.getElementById('pv-rating');
-                if (scoreEl && ensoEl && ratingEl) {
-                    clearInterval(poll);
-                    run(scoreEl, ensoEl, ratingEl);
-                } else if (++attempts > 60) {
-                    clearInterval(poll);
-                }
-            }, 40);
-
-            function run(scoreEl, ensoEl, ratingEl) {
-                var target       = parseInt(scoreEl.dataset.target, 10);
-                var targetOffset = parseFloat(ensoEl.dataset.targetOffset);
-
-                // Ensō draws via CSS transition on stroke-dashoffset.
-                requestAnimationFrame(function() {
-                    ensoEl.style.strokeDashoffset = String(targetOffset);
-                });
-
-                // Score counts up in sync (1.2s), easing out.
-                var start = performance.now();
-                var dur   = 1200;
-                function tick(now) {
-                    var t = Math.min((now - start) / dur, 1);
-                    var e = 1 - Math.pow(1 - t, 3);
-                    scoreEl.textContent = Math.round(e * target);
-                    if (t < 1) requestAnimationFrame(tick);
-                }
-                requestAnimationFrame(tick);
-
-                // Rating fades in near the end of the stroke.
-                setTimeout(function() { ratingEl.style.opacity = '1'; }, 700);
-            }
-        })();
-        </script>
-        """,
-        height=0,
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -1445,30 +1378,26 @@ render_header()
 def _on_password_change():
     st.session_state.pop("validation_done", None)
 
-password = st.text_input(
-    f"Enter a password (up to {MAX_LENGTH} characters)",
-    type="password",
-    max_chars=MAX_LENGTH,
-    key="password_input",
-    on_change=_on_password_change,
-)
+_input_col, _button_col = st.columns([4, 1], gap="small")
+with _input_col:
+    password = st.text_input(
+        "Password",
+        type="password",
+        max_chars=MAX_LENGTH,
+        key="password_input",
+        on_change=_on_password_change,
+        placeholder="test your password...",
+        label_visibility="collapsed",
+    )
+with _button_col:
+    validate_clicked = st.button("Analyze", use_container_width=True)
 
 st.markdown(
-    '<div style="position:relative; height:1rem; '
-    'margin:-0.5rem 0 0.75rem 0;">'
-    '<span class="pv-left" style="position:absolute; width:100%; left:0; '
-    'font-family:\'JetBrains Mono\',monospace; '
-    'font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.1em; text-align:left;">'
-    'YOUR PASSWORD IS NEVER SENT TO ANY SERVER OR STORED.</span>'
-    '<span class="pv-right" style="position:absolute; width:100%; left:0; '
-    'font-family:\'JetBrains Mono\',monospace; '
-    'font-size:0.6rem; color:rgba(232,223,211,0.35); letter-spacing:0.1em; text-align:left;">'
-    'CHECK YOUR SURROUNDINGS BEFORE REVEALING YOUR PASSWORD.</span>'
-    '</div>',
+    '<p style="text-align:center; font-size:0.75rem; color:#6B7488; margin:0.75rem 0 0;">'
+    'Your password never leaves this device. We send only a partial SHA-1 prefix to HIBP.'
+    '</p>',
     unsafe_allow_html=True,
 )
-
-validate_clicked = st.button("Measure", type="primary", use_container_width=True, key="btn_validate")
 
 render_generator_panel()
 render_passphrase_panel()
@@ -1482,10 +1411,14 @@ elif st.session_state.get("validation_done") and \
     render_validation_results(password)
 
 st.markdown(
-    '<div class="pv-footer">'
-    '<span>built by Ben Mickens</span>'
-    '<span style="margin:0 0.75rem;">·</span>'
-    '<a href="https://github.com/cyberpsyon/password-validator" target="_blank">source</a>'
+    '<div class="pv-footer" style="margin-top:3rem; padding-top:1.25rem; '
+    'border-top:1px solid #181830; text-align:center;">'
+    '<span style="color:#7878A0; font-size:0.62rem; letter-spacing:0.14em;">BUILT BY BEN MICKENS</span>'
+    '<span style="color:#7878A0; font-size:0.62rem; margin:0 0.75rem;">·</span>'
+    '<a href="https://github.com/cyberpsyon/password-validator" target="_blank" '
+    'style="font-size:0.62rem; letter-spacing:0.14em; transition:color 0.2s;">'
+    '[ SOURCE: GITHUB ]'
+    '</a>'
     '</div>',
     unsafe_allow_html=True,
 )
